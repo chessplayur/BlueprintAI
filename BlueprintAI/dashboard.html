@@ -13,6 +13,7 @@
             --text: #334155;
             --white: #ffffff;
             --success: #22c55e;
+            --fail: #ef4444;
         }
 
         body {
@@ -49,10 +50,13 @@
 
         /* --- Main Content --- */
         main {
-            flex-grow: 1;
-            padding: 40px;
-            overflow-y: auto;
-        }
+    flex-grow: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column; /* This stacks the header, table, and footer vertically */
+    min-height: 100vh;      /* Ensures the main area is at least the full height of the screen */
+    box-sizing: border-box; /* Prevents padding from adding extra height */
+}
 
         .header {
             display: flex;
@@ -60,7 +64,14 @@
             align-items: center;
             margin-bottom: 30px;
         }
-
+        .dashboard-footer {
+    margin-top: auto; /* Pushes the footer to the absolute bottom */
+    padding: 20px 0;
+    border-top: 1px solid #e2e8f0;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    width: 100%;
+}
         /* --- Stats Cards --- */
         .stats-grid {
             display: grid;
@@ -99,8 +110,8 @@
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: bold;
-            background: #dcfce7;
-            color: #166534;
+            background: #fecaca;
+            color: #dc2626;
         }
 
         /* --- Interaction --- */
@@ -115,31 +126,40 @@
         }
 
         button:hover { opacity: 0.9; }
+
+        .red-button {
+            background: var(--fail);
+        }
     </style>
 </head>
 <body>
 
     <nav>
-        <h2>DevPortal</h2>
+        <h2>Main Menu</h2>
         <a href="#">Dashboard</a>
         <a href="#">Projects</a>
         <a href="#">Settings</a>
+        <a href="about.html">About BlueprintAI</a>
     </nav>
 
     <main>
         <div class="header">
-            <h1>Overview</h1>
-            <button onclick="addExampleRow()">+ Add Example Object</button>
+            <h1>BluePrintAI</h1>
+            <button onclick="window.location.href='about.html'"> + Upload New Object</button>
         </div>
 
         <div class="stats-grid">
             <div class="card">
-                <small>Total Objects</small>
+                <small>Total Objects Created</small>
                 <h2 id="obj-count">3</h2>
             </div>
             <div class="card">
-                <small>System Status</small>
-                <h2 style="color: var(--success)">Online</h2>
+                <small>Total Objects Finished</small>
+                <h2 style="color: var(--success)" id="finished-count">0</h2>
+            </div>
+             <div class="card">
+                <small>Total Objects In Progress</small>
+                <h2 style="color: var(--fail)" id="in-progress-count">0</h2>
             </div>
         </div>
 
@@ -155,15 +175,25 @@
                 <tr>
                     <td>User_Profile_Alpha</td>
                     <td>#8821</td>
-                    <td><span class="badge">Active</span></td>
+                    <td><span class="badge">In Progress</span></td>
                 </tr>
                 <tr>
                     <td>Global_Config_Main</td>
                     <td>#4432</td>
-                    <td><span class="badge">Active</span></td>
+                    <td><span class="badge">In Progress</span></td>
                 </tr>
             </tbody>
         </table>
+        <footer class="dashboard-footer">
+    <div class="footer-content">
+        <p>&copy; 2026 BlueprintAI </p>
+        <div class="footer-links">
+            <a href="#">Documentation</a>
+            <a href="#">Support</a>
+            <a href="#">Privacy Policy</a>
+        </div>
+    </div>
+</footer>
     </main>
 
     <script>
