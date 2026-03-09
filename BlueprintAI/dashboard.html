@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Dashboard</title>
+    <style>
+        /* CSS Variables make it easy to change colors later */
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --sidebar: #1e293b;
+            --text: #334155;
+            --white: #ffffff;
+            --success: #22c55e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        /* --- Sidebar --- */
+        nav {
+            width: 240px;
+            background-color: var(--sidebar);
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav h2 { font-size: 1.2rem; margin-bottom: 30px; color: var(--primary); }
+
+        nav a {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: 0.3s;
+        }
+
+        nav a:hover { background: #334155; color: white; }
+
+        /* --- Main Content --- */
+        main {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        /* --- Stats Cards --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        /* --- Table Styling --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th { background-color: #f1f5f9; font-weight: 600; }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* --- Interaction --- */
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h2>DevPortal</h2>
+        <a href="#">Dashboard</a>
+        <a href="#">Projects</a>
+        <a href="#">Settings</a>
+    </nav>
+
+    <main>
+        <div class="header">
+            <h1>Overview</h1>
+            <button onclick="addExampleRow()">+ Add Example Object</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="card">
+                <small>Total Objects</small>
+                <h2 id="obj-count">3</h2>
+            </div>
+            <div class="card">
+                <small>System Status</small>
+                <h2 style="color: var(--success)">Online</h2>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Object Name</th>
+                    <th>ID</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="data-table">
+                <tr>
+                    <td>User_Profile_Alpha</td>
+                    <td>#8821</td>
+                    <td><span class="badge">Active</span></td>
+                </tr>
+                <tr>
+                    <td>Global_Config_Main</td>
+                    <td>#4432</td>
+                    <td><span class="badge">Active</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        // Simple Logic to add a row and update UI
+        let count = 2;
+
+        function addExampleRow() {
+            count++;
+            const table = document.getElementById("data-table");
+            const row = table.insertRow();
+            
+            // UI/UX: Generate a random ID for the example
+            const randomId = Math.floor(Math.random() * 9000) + 1000;
+            
+            row.innerHTML = `
+                <td>New_Object_Test</td>
+                <td>#${randomId}</td>
+                <td><span class="badge">Active</span></td>
+            `;
+
+            document.getElementById("obj-count").innerText = count;
+        }
+    </script>
+
+</body>
+</html>
