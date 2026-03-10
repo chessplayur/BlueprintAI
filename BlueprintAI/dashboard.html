@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Dashboard</title>
+    <title>Object Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         /* CSS Variables make it easy to change colors later */
         :root {
@@ -105,6 +106,15 @@
 
         th { background-color: #f1f5f9; font-weight: 600; }
 
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th.sortable:hover {
+            background-color: #e2e8f0;
+        }
+
         .badge {
             padding: 4px 10px;
             border-radius: 20px;
@@ -130,6 +140,128 @@
         .red-button {
             background: var(--fail);
         }
+
+        /* --- Modal Styles --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal input, .modal button {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .modal button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .modal button:hover {
+            opacity: 0.9;
+        }
+
+        /* --- OpenSCAD Modal --- */
+        #openscad-modal .modal-content {
+            width: 90%;
+            max-width: 1200px;
+            height: 80vh;
+        }
+
+        #openscad-modal iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* CAD-like interface */
+        .cad-toolbar {
+            background: #f0f0f0;
+            padding: 5px;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            gap: 10px;
+        }
+
+        .cad-toolbar button {
+            padding: 5px 10px;
+            background: white;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .cad-toolbar button:hover {
+            background: #e0e0e0;
+        }
+
+        .cad-layout {
+            display: flex;
+            height: calc(100% - 40px);
+        }
+
+        .cad-sidebar {
+            width: 200px;
+            background: #f8f8f8;
+            border-right: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .cad-main {
+            flex: 1;
+            display: flex;
+        }
+
+        .cad-editor {
+            flex: 1;
+            padding: 10px;
+            border-right: 1px solid #ccc;
+        }
+
+        .cad-viewer {
+            flex: 1;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
@@ -137,7 +269,6 @@
     <nav>
         <h2>Main Menu</h2>
         <a href="#">Dashboard</a>
-        <a href="#">Projects</a>
         <a href="#">Settings</a>
         <a href="about.html">About BlueprintAI</a>
     </nav>
@@ -145,13 +276,13 @@
     <main>
         <div class="header">
             <h1>BluePrintAI</h1>
-            <button onclick="window.location.href='about.html'"> + Upload New Object</button>
+            <button id="upload-btn"> + Upload New Object</button>
         </div>
 
         <div class="stats-grid">
             <div class="card">
                 <small>Total Objects Created</small>
-                <h2 id="obj-count">3</h2>
+                <h2 id="obj-count">0</h2>
             </div>
             <div class="card">
                 <small>Total Objects Finished</small>
@@ -166,22 +297,17 @@
         <table>
             <thead>
                 <tr>
+                    <th>Image</th>
                     <th>Object Name</th>
+                    <th>Date Modified</th>
+                    <th>Last Modified By</th>
+                    <th>Owned By</th>
                     <th>ID</th>
-                    <th>Status</th>
+                    <th class="sortable" onclick="sortTable(6)">Status</th>
                 </tr>
             </thead>
             <tbody id="data-table">
-                <tr>
-                    <td>User_Profile_Alpha</td>
-                    <td>#8821</td>
-                    <td><span class="badge">In Progress</span></td>
-                </tr>
-                <tr>
-                    <td>Global_Config_Main</td>
-                    <td>#4432</td>
-                    <td><span class="badge">In Progress</span></td>
-                </tr>
+              
             </tbody>
         </table>
         <footer class="dashboard-footer">
@@ -196,9 +322,69 @@
 </footer>
     </main>
 
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Upload New Object</h2>
+            <form id="upload-form">
+                <label for="object-name">Object Name:</label>
+                <input type="text" id="object-name" name="object-name" required>
+                
+                <label for="object-file">Upload File (optional):</label>
+                <input type="file" id="object-file" name="object-file">
+                
+                <button type="submit">Create Object</button>
+                <button type="button" class="cancel-btn">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- OpenSCAD Modal -->
+    <div id="openscad-modal" class="modal">
+        <div class="modal-content" style="width: 95%; max-width: 1400px; height: 90vh;">
+            <span class="close" id="openscad-close">&times;</span>
+            <div class="cad-toolbar">
+                <button>File</button>
+                <button>Edit</button>
+                <button>View</button>
+                <button>Insert</button>
+                <button>Tools</button>
+                <button>Help</button>
+            </div>
+            <div class="cad-layout">
+                <div class="cad-sidebar">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Primitives</li>
+                        <li>Transforms</li>
+                        <li>Boolean Ops</li>
+                        <li>Extrusions</li>
+                    </ul>
+                    <h4>Objects</h4>
+                    <ul id="object-tree">
+                        <li>Cube</li>
+                    </ul>
+                </div>
+                <div class="cad-main">
+                    <div class="cad-editor">
+                        <h3>Code Editor</h3>
+                        <textarea id="code-editor" style="width: 100%; height: 80%; font-family: monospace;">cube([10,10,10]);</textarea>
+                        <button id="render-btn" style="margin-top: 10px;">Render</button>
+                    </div>
+                    <div class="cad-viewer">
+                        <h3>3D Viewer</h3>
+                        <canvas id="3d-canvas" style="width: 100%; height: 80%; border: 1px solid #ccc;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Simple Logic to add a row and update UI
-        let count = 2;
+        let count = 0;
+        let inProgressCount = 0;
 
         function addExampleRow() {
             count++;
@@ -215,6 +401,147 @@
             `;
 
             document.getElementById("obj-count").innerText = count;
+        }
+
+        // Modal functionality
+        const modal = document.getElementById("upload-modal");
+        const btn = document.getElementById("upload-btn");
+        const span = document.getElementsByClassName("close")[0];
+        const cancelBtn = document.querySelector(".cancel-btn");
+        const form = document.getElementById("upload-form");
+
+        // OpenSCAD Modal
+        const openscadModal = document.getElementById("openscad-modal");
+        const openscadClose = document.getElementById("openscad-close");
+        let scene, camera, renderer, cube;
+
+        // When the user clicks the button, open the modal
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks on cancel button, close the modal
+        cancelBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+            if (event.target == openscadModal) {
+                openscadModal.style.display = "none";
+            }
+        }
+
+        // OpenSCAD close
+        openscadClose.onclick = function() {
+            openscadModal.style.display = "none";
+        }
+
+        // Click on table row to open OpenSCAD
+        document.getElementById("data-table").addEventListener("click", function(event) {
+            if (event.target.closest("tr")) {
+                if (!scene) {
+                    initThreeJS();
+                }
+                openscadModal.style.display = "block";
+            }
+        });
+
+        function initThreeJS() {
+            const canvas = document.getElementById('3d-canvas');
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: canvas });
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+
+            camera.position.z = 5;
+
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+
+        // Render button
+        document.getElementById('render-btn').addEventListener('click', function() {
+            alert('Code compilation not implemented yet. This is a placeholder for OpenSCAD-like functionality.');
+        });
+
+        // Handle form submission
+        form.onsubmit = function(event) {
+            event.preventDefault();
+            const objectName = document.getElementById("object-name").value;
+            const fileInput = document.getElementById("object-file");
+            const file = fileInput.files[0];
+            
+            if (objectName) {
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        addNewObject(objectName, e.target.result);
+                        modal.style.display = "none";
+                        form.reset();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    addNewObject(objectName);
+                    modal.style.display = "none";
+                    form.reset();
+                }
+            }
+        }
+
+        function addNewObject(name, imageSrc = "") {
+            count++;
+            inProgressCount++;
+            const table = document.getElementById("data-table");
+            const row = table.insertRow();
+            
+            const randomId = Math.floor(Math.random() * 9000) + 1000;
+            
+            row.innerHTML = `
+                <td><img src="${imageSrc}" alt="Image" style="width:50px; height:50px;"></td>
+                <td>${name}</td>
+                <td>${new Date().toLocaleDateString()}</td>
+                <td>User</td>
+                <td>User</td>
+                <td>#${randomId}</td>
+                <td><span class="badge">In Progress</span></td>
+            `;
+
+            document.getElementById("obj-count").innerText = count;
+            document.getElementById("in-progress-count").innerText = inProgressCount;
+        }
+
+        function sortTable(columnIndex) {
+            const table = document.getElementById("data-table");
+            const rows = Array.from(table.rows);
+            
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].textContent.trim();
+                const bText = b.cells[columnIndex].textContent.trim();
+                return aText.localeCompare(bText);
+            });
+            
+            // Re-append sorted rows
+            rows.forEach(row => table.appendChild(row));
         }
     </script>
 
