@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlueprintAI | Official Dashboard</title>
+    <title>BlueprintAI | Professional OS</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
@@ -11,194 +11,241 @@
         :root {
             --primary: #2563eb;
             --bg: #f8fafc;
-            --sidebar: #1e293b;
-            --text: #334155;
+            --sidebar: #0f172a;
+            --panel: #1e293b;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
             --white: #ffffff;
-            --success: #22c55e;
+            --border: #e2e8f0;
             --accent: #4ade80;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); color: var(--text); overflow: hidden; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); color: var(--text-dark); overflow: hidden; }
 
         /* --- Sidebar --- */
-        nav { width: 240px; background: var(--sidebar); color: white; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; }
-        nav h2 { font-size: 1.2rem; margin-bottom: 30px; color: var(--primary); }
-        .nav-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin: 20px 0 10px 5px; letter-spacing: 1px; }
-        nav a { color: #cbd5e1; text-decoration: none; padding: 10px; border-radius: 8px; margin-bottom: 5px; display: block; font-size: 0.9rem; transition: 0.2s; cursor: pointer; }
-        nav a:hover { background: #334155; color: white; }
+        nav { width: 260px; background: var(--sidebar); color: white; padding: 24px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
+        nav h2 { font-size: 1.25rem; margin-bottom: 32px; color: var(--primary); font-weight: 800; cursor: pointer; }
+        .nav-label { font-size: 0.7rem; color: #475569; text-transform: uppercase; margin: 24px 0 12px 5px; letter-spacing: 1px; font-weight: 700; }
+        nav a { color: #cbd5e1; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 4px; display: block; font-size: 0.9rem; transition: 0.2s; cursor: pointer; }
+        nav a:hover, nav a.active { background: #1e293b; color: white; }
+        nav a.highlight { border: 1px solid var(--primary); color: var(--primary); font-weight: 600; margin-top: 10px; text-align: center; }
 
-        /* --- Dashboard --- */
-        main { flex-grow: 1; padding: 30px; overflow-y: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-        .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        
-        .table-container { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden; }
+        /* --- Main Content --- */
+        .view-content { flex-grow: 1; height: 100vh; position: relative; display: flex; flex-direction: column; min-width: 0; }
+        .page { display: none; height: 100%; width: 100%; overflow: hidden; }
+        .page.active { display: flex; flex-direction: column; }
+
+        /* --- DASHBOARD PAGE --- */
+        #dashboard-page { padding: 40px; overflow-y: auto; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; gap: 20px; width: 100%; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
+        .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .card small { color: var(--text-light); text-transform: uppercase; font-size: 0.7rem; font-weight: 700; }
+        .card h2 { margin: 8px 0 0 0; font-size: 1.5rem; }
+
+        .table-container { background: white; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 15px 20px; text-align: left; border-bottom: 1px solid #f1f5f9; }
-        th { background: #f8fafc; font-weight: 600; color: #64748b; font-size: 0.85rem; }
-        tbody tr { cursor: pointer; transition: 0.2s; }
-        tbody tr:hover { background: #f8fafc; }
+        th, td { padding: 16px 24px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #f8fafc; color: var(--text-light); font-size: 0.8rem; }
+        tbody tr:hover { background: #f1f5f9; cursor: pointer; }
 
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: #dcfce7; color: #15803d; }
-        .badge-processing { background: #fef9c3; color: #854d0e; }
+        /* --- AI CREATOR PAGE --- */
+        #ai-creator-page { background: #020617; color: white; }
+        .editor-toolbar { height: 64px; background: #000; border-bottom: 1px solid #1e293b; display: flex; align-items: center; padding: 0 24px; justify-content: space-between; }
+        .editor-grid { display: grid; grid-template-columns: 320px 1fr 400px; flex-grow: 1; overflow: hidden; }
+        .panel { display: flex; flex-direction: column; border-right: 1px solid #1e293b; height: 100%; }
+        .panel-header { background: #0f172a; padding: 12px 16px; font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 800; }
+        textarea { flex-grow: 1; background: #020617; color: #9cdcfe; border: none; padding: 20px; font-family: monospace; outline: none; resize: none; font-size: 13px; line-height: 1.6; }
+        #viewer-3d { flex-grow: 1; background: #000; }
+        #chat-history { flex-grow: 1; padding: 20px; overflow-y: auto; font-size: 13px; color: #cbd5e1; display: flex; flex-direction: column; gap: 12px; }
+        .chat-input-box { padding: 20px; border-top: 1px solid #1e293b; display: flex; gap: 10px; background: #020617; }
+        .chat-input-box input { flex-grow: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px; outline: none; }
 
-        /* --- CAD Workspace Modal --- */
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
-        .cad-container { background: #1a1a1a; width: 95%; height: 92vh; margin: 4vh auto; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
-        .toolbar { padding: 12px 20px; background: #2d2d2d; display: flex; align-items: center; border-bottom: 1px solid #444; gap: 10px; }
-        .workspace-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 180px; flex-grow: 1; background: #333; gap: 2px; }
-        
-        .panel { background: #1e1e1e; display: flex; flex-direction: column; position: relative; }
-        .panel-header { background: #252526; padding: 10px 15px; font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #333; }
-        
-        textarea { flex-grow: 1; background: transparent; color: #9cdcfe; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 14px; outline: none; resize: none; line-height: 1.5; }
-        #viewer-3d { flex-grow: 1; background: #000; cursor: move; }
-        #translator-output { padding: 15px; color: var(--accent); font-family: monospace; font-size: 0.85rem; white-space: pre; overflow-y: auto; background: #111; }
-
-        button { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn { padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; border: none; transition: 0.2s; white-space: nowrap; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-ghost { background: transparent; color: #ccc; border: 1px solid #555; }
-        .btn-ghost:hover { background: #444; }
+        .btn-save { background: var(--accent); color: #064e3b; }
+        .badge { padding: 4px 12px; border-radius: 99px; font-size: 0.7rem; background: #dcfce7; color: #15803d; font-weight: 700; }
     </style>
 </head>
 <body>
 
     <nav>
-        <h2>BlueprintAI</h2>
-        <a class="active">🏠 Dashboard</a>
-        <div class="nav-label">Ref Library</div>
-        <a onclick="openWorkspace('Ref: Cube', 'cube([15, 15, 15], center=true);')">📦 Cube</a>
-        <a onclick="openWorkspace('Ref: Sphere', 'sphere(r = 12);')">🌐 Sphere</a>
-        <a onclick="openWorkspace('Ref: Cylinder', 'cylinder(h = 25, r = 10);')">🔋 Cylinder</a>
-        <a onclick="openWorkspace('Ref: Cone', 'cylinder(h = 20, r1 = 12, r2 = 0);')">🍦 Cone</a>
-        <a onclick="openWorkspace('Ref: Ring', 'rotate_extrude() translate([10, 0, 0]) circle(r = 2);')">🍩 Ring</a>
+        <h2 onclick="showPage('dashboard')">BlueprintAI</h2>
+        <a onclick="showPage('dashboard')" id="link-dash" class="active">🏠 Dashboard</a>
+        <a onclick="openEmptyCreator()" id="link-ai" class="highlight">✨ AI Creator</a>
+        
+        <div class="nav-label">Saved Projects</div>
+        <div id="sidebar-projects"></div>
     </nav>
 
-    <main>
-        <div class="header">
-            <h1>Object Library</h1>
-            <input type="file" id="file-input" style="display: none;" accept="image/*" onchange="handleFileUpload(event)">
-            <button class="btn-primary" onclick="triggerUpload()">+ Create New Object</button>
-        </div>
-
-        <div class="stats-grid">
-            <div class="card"><small>Total Blueprints</small><h2 id="stat-total">1</h2></div>
-            <div class="card"><small>Engine Status</small><h2 style="color: var(--success)">Online</h2></div>
-            <div class="card"><small>Recent Sprints</small><h2>0</h2></div>
-        </div>
-
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr><th>Preview</th><th>Project Name</th><th>Status</th><th>Created</th></tr>
-                </thead>
-                <tbody id="data-table">
-                    <tr onclick="openWorkspace('Example Gear', 'cylinder(h=5, r=15, $fn=50);')">
-                        <td>⚙️</td>
-                        <td><strong>Example Gear</strong></td>
-                        <td><span class="badge">Ready</span></td>
-                        <td>Published</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
-
-    <div id="workspace-modal" class="modal">
-        <div class="cad-container">
-            <div class="toolbar">
-                <span id="modal-title" style="color: white; font-weight: bold; margin-right: 20px;">Workspace</span>
-                <button class="btn-primary" onclick="render3D()">▶ Update Preview</button>
-                <button class="btn-ghost" onclick="copyToClipboard()">📋 Copy Code</button>
-                <button class="btn-ghost" style="margin-left: auto;" onclick="closeModal()">Close</button>
+    <div class="view-content">
+        <div id="dashboard-page" class="page active">
+            <div class="header-container">
+                <div>
+                    <h1 style="margin:0; font-size: 1.8rem;">Object Library</h1>
+                    <p style="color: var(--text-light); margin: 4px 0 0 0;">Select a blueprint to edit.</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="triggerUpload()">+ New Blueprint</button>
+                    <input type="file" id="file-input" style="display: none;" accept="image/*" onchange="handleFileUpload(event)">
+                </div>
             </div>
-            
-            <div class="workspace-grid">
+
+            <div class="stats-grid">
+                <div class="card"><small>Total Blueprints</small><h2 id="stat-total">0</h2></div>
+                <div class="card"><small>AI Engine</small><h2 style="color: var(--success)">Active</h2></div>
+                <div class="card"><small>Sync Status</small><h2>Local Storage</h2></div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Icon</th><th>Blueprint Name</th><th>Status</th><th>Last Edit</th></tr></thead>
+                    <tbody id="data-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="ai-creator-page" class="page">
+            <div class="editor-toolbar">
+                <div>
+                    <span id="active-title" style="color: #64748b; font-size: 13px;">EDITOR / </span>
+                    <span id="project-name-display" style="font-weight: 700; color: white;">UNSAVED DRAFT</span>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button id="save-btn" class="btn btn-save" onclick="saveCurrentWork()">💾 Save Project</button>
+                    <button class="btn btn-primary" onclick="render3D()">Render Model</button>
+                </div>
+            </div>
+            <div class="editor-grid">
                 <div class="panel">
-                    <div class="panel-header">OpenSCAD Editor (.scad)</div>
-                    <textarea id="code-editor" spellcheck="false" oninput="syncTranslator()"></textarea>
+                    <div class="panel-header">AI Assistant</div>
+                    <div id="chat-history"></div>
+                    <div class="chat-input-box">
+                        <input type="text" id="ai-prompt" placeholder="Ask AI to modify..." onkeydown="if(event.key==='Enter') askAI()">
+                        <button class="btn btn-primary" onclick="askAI()">Send</button>
+                    </div>
                 </div>
-                
                 <div class="panel">
-                    <div class="panel-header">Live 3D Viewport (Click & Drag to Rotate)</div>
-                    <div id="viewer-3d"></div>
+                    <div class="panel-header">OpenSCAD Source</div>
+                    <textarea id="code-editor" spellcheck="false" oninput="render3D()"></textarea>
                 </div>
-                
-                <div class="panel" style="grid-column: span 2;">
-                    <div class="panel-header">OpenSCAD Translator</div>
-                    <div id="translator-output"></div>
-                </div>
+                <div class="panel" style="border: none;"><div class="panel-header">3D Viewport</div><div id="viewer-3d"></div></div>
             </div>
         </div>
     </div>
 
     <script>
         let scene, camera, renderer, currentMesh, controls;
-        let objectCount = 1;
+        let projects = JSON.parse(localStorage.getItem('bp_projects')) || [];
+        let currentEditingId = null;
 
-        // --- Dashboard Logic ---
+        window.onload = () => {
+            updateProjectLists();
+            renderTable();
+        };
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId + '-page').classList.add('active');
+            document.getElementById('link-dash').classList.remove('active');
+            document.getElementById('link-ai').classList.remove('active');
+            if(pageId === 'dashboard') document.getElementById('link-dash').classList.add('active');
+            else {
+                document.getElementById('link-ai').classList.add('active');
+                if(!renderer) initThreeJS();
+            }
+        }
+
+        function updateProjectLists() {
+            const sidebar = document.getElementById('sidebar-projects');
+            sidebar.innerHTML = '';
+            projects.forEach(p => {
+                sidebar.innerHTML += `<a onclick="loadProject('${p.id}')">${p.icon} ${p.name}</a>`;
+            });
+            document.getElementById('stat-total').innerText = projects.length;
+            localStorage.setItem('bp_projects', JSON.stringify(projects));
+        }
+
+        function renderTable() {
+            const table = document.getElementById('data-table');
+            table.innerHTML = '';
+            projects.forEach(p => {
+                const row = table.insertRow();
+                row.onclick = () => loadProject(p.id);
+                row.innerHTML = `<td>${p.icon}</td><td><strong>${p.name}</strong></td><td><span class="badge">Ready</span></td><td>Now</td>`;
+            });
+        }
+
+        function openEmptyCreator() {
+            currentEditingId = null; // Mark as unsaved draft
+            document.getElementById('project-name-display').innerText = "UNSAVED DRAFT";
+            document.getElementById('code-editor').value = 'cube([20,20,20], center=true);';
+            document.getElementById('save-btn').innerText = "💾 Save Project";
+            showPage('ai-creator');
+            if(renderer) render3D();
+        }
+
+        function saveCurrentWork() {
+            const code = document.getElementById('code-editor').value;
+            
+            if (currentEditingId === null) {
+                // It's a new project
+                const name = prompt("Enter a name for your new blueprint:", "New Object");
+                if (!name) return;
+                
+                const newProj = { id: Date.now(), name: name, code: code, icon: '📦' };
+                projects.push(newProj);
+                currentEditingId = newProj.id;
+                document.getElementById('project-name-display').innerText = name.toUpperCase();
+            } else {
+                // Update existing project
+                const index = projects.findIndex(p => p.id == currentEditingId);
+                projects[index].code = code;
+            }
+
+            updateProjectLists();
+            renderTable();
+            
+            const btn = document.getElementById('save-btn');
+            btn.innerText = "✅ Saved!";
+            setTimeout(() => { btn.innerText = "💾 Save Project"; }, 2000);
+        }
+
+        function loadProject(id) {
+            const project = projects.find(p => p.id == id);
+            if(!project) return;
+            currentEditingId = id;
+            document.getElementById('project-name-display').innerText = project.name.toUpperCase();
+            document.getElementById('code-editor').value = project.code;
+            showPage('ai-creator');
+            if(renderer) render3D();
+        }
+
         function triggerUpload() { document.getElementById('file-input').click(); }
 
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const name = file.name.split('.')[0];
-            const table = document.getElementById('data-table');
-            const row = table.insertRow(0);
-            
-            row.innerHTML = `
-                <td>🖼️</td>
-                <td><strong>${name}</strong></td>
-                <td><span class="badge badge-processing">Analyzing...</span></td>
-                <td>Just Now</td>
-            `;
-
-            objectCount++;
-            document.getElementById('stat-total').innerText = objectCount;
-
-            setTimeout(() => {
-                row.cells[2].innerHTML = `<span class="badge">Ready</span>`;
-                openWorkspace(name, `// Generated from ${file.name}\ncube([20, 10, 5], center=true);`);
-            }, 1500);
-
-            row.onclick = () => openWorkspace(name, `cube([20, 10, 5], center=true);`);
+            const newProj = { id: Date.now(), name: name, code: 'sphere(r=15);', icon: '🖼️' };
+            projects.push(newProj);
+            updateProjectLists();
+            renderTable();
+            loadProject(newProj.id);
         }
-
-        // --- Workspace Logic ---
-        function openWorkspace(name, code) {
-            document.getElementById('workspace-modal').style.display = "block";
-            document.getElementById('modal-title').innerText = "Project: " + name;
-            document.getElementById('code-editor').value = code;
-            
-            if (!renderer) initThreeJS();
-            render3D();
-            syncTranslator();
-        }
-
-        function closeModal() { document.getElementById('workspace-modal').style.display = "none"; }
 
         function initThreeJS() {
             const container = document.getElementById('viewer-3d');
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(30, 30, 30);
-            
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(50, 50, 50);
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(renderer.domElement);
-
-            // Initialize Mouse Controls
+            scene.add(new THREE.GridHelper(100, 40, 0x222222, 0x111111));
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
             controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
-
-            scene.add(new THREE.AmbientLight(0x606060));
-            const light = new THREE.PointLight(0xffffff, 1.2);
-            light.position.set(20, 40, 20);
-            scene.add(light);
-            
             animate();
         }
 
@@ -206,55 +253,25 @@
             if (currentMesh) scene.remove(currentMesh);
             const code = document.getElementById('code-editor').value.toLowerCase();
             let geo;
-
             const r = parseFloat(code.match(/r\s*=\s*([\d.]+)/)?.[1]) || 10;
-            const r1 = parseFloat(code.match(/r1\s*=\s*([\d.]+)/)?.[1]) || 10;
-            const r2 = parseFloat(code.match(/r2\s*=\s*([\d.]+)/)?.[1]);
             const h = parseFloat(code.match(/h\s*=\s*([\d.]+)/)?.[1]) || 20;
-
-            if (code.includes("rotate_extrude")) {
-                geo = new THREE.TorusGeometry(10, 3, 16, 100);
-            } else if (code.includes("sphere")) {
-                geo = new THREE.SphereGeometry(r, 32, 32);
-            } else if (code.includes("cylinder")) {
-                const topR = (r2 === 0) ? 0.01 : (r2 || r);
-                geo = new THREE.CylinderGeometry(topR, r1 || r, h, 32);
-            } else {
-                const d = code.match(/\[(.*?)\]/)?.[1].split(',').map(n => parseFloat(n)) || [15, 15, 15];
-                geo = new THREE.BoxGeometry(d[0]||15, d[1]||15, d[2]||15);
-            }
-
-            const material = new THREE.MeshPhongMaterial({ color: 0x2563eb, shininess: 80 });
-            currentMesh = new THREE.Mesh(geo, material);
+            if (code.includes("sphere")) geo = new THREE.SphereGeometry(r, 32, 32);
+            else if (code.includes("cylinder")) geo = new THREE.CylinderGeometry(r, r, h, 32);
+            else geo = new THREE.BoxGeometry(15, 15, 15);
+            currentMesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: 0x2563eb }));
             scene.add(currentMesh);
         }
 
-        function syncTranslator() {
-            const raw = document.getElementById('code-editor').value;
-            document.getElementById('translator-output').innerText = "// Ready for OpenSCAD Export:\n\n" + raw;
+        function askAI() {
+            const input = document.getElementById('ai-prompt');
+            const history = document.getElementById('chat-history');
+            if (!input.value) return;
+            history.innerHTML += `<div><strong>YOU:</strong> ${input.value}</div>`;
+            input.value = "";
+            setTimeout(() => { history.innerHTML += `<div><strong>AI:</strong> Logic updated. Click Save to keep changes.</div>`; }, 600);
         }
 
-        function copyToClipboard() {
-            const text = document.getElementById('code-editor').value;
-            navigator.clipboard.writeText(text);
-            alert("OpenSCAD code copied!");
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            if (controls) controls.update();
-            renderer.render(scene, camera);
-        }
-
-        // Handle window resizing
-        window.addEventListener('resize', () => {
-            if (renderer && camera) {
-                const container = document.getElementById('viewer-3d');
-                renderer.setSize(container.clientWidth, container.clientHeight);
-                camera.aspect = container.clientWidth / container.clientHeight;
-                camera.updateProjectionMatrix();
-            }
-        });
+        function animate() { requestAnimationFrame(animate); if(controls) controls.update(); renderer.render(scene, camera); }
     </script>
 </body>
 </html>
