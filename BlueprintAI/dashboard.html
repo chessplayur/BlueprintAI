@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BlueprintAI | Official Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
     <style>
         :root {
             --primary: #2563eb;
@@ -22,7 +24,7 @@
         nav { width: 240px; background: var(--sidebar); color: white; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; }
         nav h2 { font-size: 1.2rem; margin-bottom: 30px; color: var(--primary); }
         .nav-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin: 20px 0 10px 5px; letter-spacing: 1px; }
-        nav a { color: #cbd5e1; text-decoration: none; padding: 10px; border-radius: 8px; margin-bottom: 5px; display: block; font-size: 0.9rem; transition: 0.2s; }
+        nav a { color: #cbd5e1; text-decoration: none; padding: 10px; border-radius: 8px; margin-bottom: 5px; display: block; font-size: 0.9rem; transition: 0.2s; cursor: pointer; }
         nav a:hover { background: #334155; color: white; }
 
         /* --- Dashboard --- */
@@ -51,7 +53,7 @@
         .panel-header { background: #252526; padding: 10px 15px; font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #333; }
         
         textarea { flex-grow: 1; background: transparent; color: #9cdcfe; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 14px; outline: none; resize: none; line-height: 1.5; }
-        #viewer-3d { flex-grow: 1; background: #000; }
+        #viewer-3d { flex-grow: 1; background: #000; cursor: move; }
         #translator-output { padding: 15px; color: var(--accent); font-family: monospace; font-size: 0.85rem; white-space: pre; overflow-y: auto; background: #111; }
 
         button { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
@@ -64,12 +66,13 @@
 
     <nav>
         <h2>BlueprintAI</h2>
-        <a href="#" class="active">🏠 Dashboard</a>
+        <a class="active">🏠 Dashboard</a>
         <div class="nav-label">Ref Library</div>
-        <a href="#" onclick="openWorkspace('Ref: Cube', 'cube([15, 15, 15], center=true);')">📦 cube</a>
-        <a href="#" onclick="openWorkspace('Ref: Sphere', 'sphere(r = 12);')">🌐 sphere</a>
-        <a href="#" onclick="openWorkspace('Ref: Cylinder', 'cylinder(h = 25, r = 10);')">🔋 cylinder</a>
-        <a href="#" onclick="openWorkspace('Ref: Cone', 'cylinder(h = 20, r1 = 12, r2 = 0);')">🍦 cone</a>
+        <a onclick="openWorkspace('Ref: Cube', 'cube([15, 15, 15], center=true);')">📦 Cube</a>
+        <a onclick="openWorkspace('Ref: Sphere', 'sphere(r = 12);')">🌐 Sphere</a>
+        <a onclick="openWorkspace('Ref: Cylinder', 'cylinder(h = 25, r = 10);')">🔋 Cylinder</a>
+        <a onclick="openWorkspace('Ref: Cone', 'cylinder(h = 20, r1 = 12, r2 = 0);')">🍦 Cone</a>
+        <a onclick="openWorkspace('Ref: Ring', 'rotate_extrude() translate([10, 0, 0]) circle(r = 2);')">🍩 Ring</a>
     </nav>
 
     <main>
@@ -107,7 +110,7 @@
             <div class="toolbar">
                 <span id="modal-title" style="color: white; font-weight: bold; margin-right: 20px;">Workspace</span>
                 <button class="btn-primary" onclick="render3D()">▶ Update Preview</button>
-                <button class="btn-ghost" onclick="copyToClipboard()">📋 Copy OpenSCAD Code</button>
+                <button class="btn-ghost" onclick="copyToClipboard()">📋 Copy Code</button>
                 <button class="btn-ghost" style="margin-left: auto;" onclick="closeModal()">Close</button>
             </div>
             
@@ -118,7 +121,7 @@
                 </div>
                 
                 <div class="panel">
-                    <div class="panel-header">Live 3D Viewport</div>
+                    <div class="panel-header">Live 3D Viewport (Click & Drag to Rotate)</div>
                     <div id="viewer-3d"></div>
                 </div>
                 
@@ -131,7 +134,7 @@
     </div>
 
     <script>
-        let scene, camera, renderer, currentMesh;
+        let scene, camera, renderer, currentMesh, controls;
         let objectCount = 1;
 
         // --- Dashboard Logic ---
@@ -145,7 +148,6 @@
             const table = document.getElementById('data-table');
             const row = table.insertRow(0);
             
-            // Set row content with the "Processing" badge just like the original
             row.innerHTML = `
                 <td>🖼️</td>
                 <td><strong>${name}</strong></td>
@@ -156,10 +158,9 @@
             objectCount++;
             document.getElementById('stat-total').innerText = objectCount;
 
-            // Auto-open workspace after a short delay to simulate "Analysis"
             setTimeout(() => {
                 row.cells[2].innerHTML = `<span class="badge">Ready</span>`;
-                openWorkspace(name, `// BlueprintAI generated code\n// Source: ${file.name}\n\ncube([20, 10, 5], center=true);`);
+                openWorkspace(name, `// Generated from ${file.name}\ncube([20, 10, 5], center=true);`);
             }, 1500);
 
             row.onclick = () => openWorkspace(name, `cube([20, 10, 5], center=true);`);
@@ -182,15 +183,22 @@
             const container = document.getElementById('viewer-3d');
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(25, 25, 25);
-            camera.lookAt(0,0,0);
+            camera.position.set(30, 30, 30);
+            
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(renderer.domElement);
-            scene.add(new THREE.AmbientLight(0x505050));
+
+            // Initialize Mouse Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            scene.add(new THREE.AmbientLight(0x606060));
             const light = new THREE.PointLight(0xffffff, 1.2);
-            light.position.set(20, 30, 20);
+            light.position.set(20, 40, 20);
             scene.add(light);
+            
             animate();
         }
 
@@ -199,39 +207,54 @@
             const code = document.getElementById('code-editor').value.toLowerCase();
             let geo;
 
-            // Extract values for dynamic rendering
-            const r = parseFloat(code.match(/r\s*=\s*(\d+)/)?.[1]) || 10;
-            const h = parseFloat(code.match(/h\s*=\s*(\d+)/)?.[1]) || 20;
-            const r2 = parseFloat(code.match(/r2\s*=\s*(\d+)/)?.[1]);
+            const r = parseFloat(code.match(/r\s*=\s*([\d.]+)/)?.[1]) || 10;
+            const r1 = parseFloat(code.match(/r1\s*=\s*([\d.]+)/)?.[1]) || 10;
+            const r2 = parseFloat(code.match(/r2\s*=\s*([\d.]+)/)?.[1]);
+            const h = parseFloat(code.match(/h\s*=\s*([\d.]+)/)?.[1]) || 20;
 
-            if (code.includes("sphere")) geo = new THREE.SphereGeometry(r, 32, 32);
-            else if (code.includes("cylinder")) {
-                geo = new THREE.CylinderGeometry(r2 === 0 ? 0.1 : r, r, h, 32);
+            if (code.includes("rotate_extrude")) {
+                geo = new THREE.TorusGeometry(10, 3, 16, 100);
+            } else if (code.includes("sphere")) {
+                geo = new THREE.SphereGeometry(r, 32, 32);
+            } else if (code.includes("cylinder")) {
+                const topR = (r2 === 0) ? 0.01 : (r2 || r);
+                geo = new THREE.CylinderGeometry(topR, r1 || r, h, 32);
             } else {
-                const d = code.match(/\[(.*?)\]/)?.[1].split(',').map(n => parseFloat(n)) || [10, 10, 10];
-                geo = new THREE.BoxGeometry(d[0]||10, d[1]||10, d[2]||10);
+                const d = code.match(/\[(.*?)\]/)?.[1].split(',').map(n => parseFloat(n)) || [15, 15, 15];
+                geo = new THREE.BoxGeometry(d[0]||15, d[1]||15, d[2]||15);
             }
 
-            currentMesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: 0x2563eb }));
+            const material = new THREE.MeshPhongMaterial({ color: 0x2563eb, shininess: 80 });
+            currentMesh = new THREE.Mesh(geo, material);
             scene.add(currentMesh);
         }
 
         function syncTranslator() {
             const raw = document.getElementById('code-editor').value;
-            document.getElementById('translator-output').innerText = "// Target: OpenSCAD (Desktop)\n\n" + raw;
+            document.getElementById('translator-output').innerText = "// Ready for OpenSCAD Export:\n\n" + raw;
         }
 
         function copyToClipboard() {
             const text = document.getElementById('code-editor').value;
             navigator.clipboard.writeText(text);
-            alert("Code copied to clipboard!");
+            alert("OpenSCAD code copied!");
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            if (currentMesh) currentMesh.rotation.y += 0.005;
+            if (controls) controls.update();
             renderer.render(scene, camera);
         }
+
+        // Handle window resizing
+        window.addEventListener('resize', () => {
+            if (renderer && camera) {
+                const container = document.getElementById('viewer-3d');
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+            }
+        });
     </script>
 </body>
 </html>
