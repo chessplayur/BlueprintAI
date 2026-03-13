@@ -3,134 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlueprintAI | Professional OS</title>
+    <title>BlueprintAI | Professional Engineering OS</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
     <style>
         :root {
             --primary: #2563eb;
-            --bg: #f8fafc;
+            --bg: #020617;
             --sidebar: #0f172a;
             --panel: #1e293b;
-            --text-dark: #1e293b;
+            --text-dark: #f8fafc;
             --text-light: #64748b;
             --white: #ffffff;
-            --border: #e2e8f0;
+            --border: #1e293b;
             --accent: #4ade80;
+            --danger: #ef4444;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); color: var(--text-dark); overflow: hidden; }
 
-        /* --- Sidebar --- */
-        nav { width: 260px; background: var(--sidebar); color: white; padding: 24px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
-        nav h2 { font-size: 1.25rem; margin-bottom: 32px; color: var(--primary); font-weight: 800; cursor: pointer; }
+        nav { width: 280px; background: var(--sidebar); color: white; padding: 24px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; border-right: 1px solid var(--border); overflow-y: auto; }
+        nav h2 { font-size: 1.25rem; margin-bottom: 32px; color: var(--primary); font-weight: 800; cursor: pointer; letter-spacing: -1px; }
         .nav-label { font-size: 0.7rem; color: #475569; text-transform: uppercase; margin: 24px 0 12px 5px; letter-spacing: 1px; font-weight: 700; }
-        nav a { color: #cbd5e1; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 4px; display: block; font-size: 0.9rem; transition: 0.2s; cursor: pointer; }
+        nav a { color: #cbd5e1; text-decoration: none; padding: 10px 12px; border-radius: 8px; margin-bottom: 4px; display: block; font-size: 0.85rem; transition: 0.2s; cursor: pointer; }
         nav a:hover, nav a.active { background: #1e293b; color: white; }
-        nav a.highlight { border: 1px solid var(--primary); color: var(--primary); font-weight: 600; margin-top: 10px; text-align: center; }
 
-        /* --- Main Content --- */
         .view-content { flex-grow: 1; height: 100vh; position: relative; display: flex; flex-direction: column; min-width: 0; }
         .page { display: none; height: 100%; width: 100%; overflow: hidden; }
         .page.active { display: flex; flex-direction: column; }
 
-        /* --- DASHBOARD PAGE --- */
-        #dashboard-page { padding: 40px; overflow-y: auto; }
-        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; gap: 20px; width: 100%; }
+        #dashboard-page { padding: 40px; overflow-y: auto; background: #f8fafc; color: #1e293b; }
+        .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; }
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
-        .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .card small { color: var(--text-light); text-transform: uppercase; font-size: 0.7rem; font-weight: 700; }
-        .card h2 { margin: 8px 0 0 0; font-size: 1.5rem; }
 
-        .table-container { background: white; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 16px 24px; text-align: left; border-bottom: 1px solid var(--border); }
-        th { background: #f8fafc; color: var(--text-light); font-size: 0.8rem; }
-        tbody tr:hover { background: #f1f5f9; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { padding: 15px; background: #f1f5f9; font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
+        td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        
+        .btn-table-open { background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 8px 16px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        .btn-table-open:hover { background: var(--primary); color: white; }
+        .btn-delete { color: #94a3b8; cursor: pointer; background: none; border: none; font-size: 1.1rem; padding: 5px; margin-left: 10px; }
+        .badge { background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; }
 
-        /* --- AI CREATOR PAGE --- */
-        #ai-creator-page { background: #020617; color: white; }
-        .editor-toolbar { height: 64px; background: #000; border-bottom: 1px solid #1e293b; display: flex; align-items: center; padding: 0 24px; justify-content: space-between; }
-        .editor-grid { display: grid; grid-template-columns: 320px 1fr 400px; flex-grow: 1; overflow: hidden; }
-        .panel { display: flex; flex-direction: column; border-right: 1px solid #1e293b; height: 100%; }
-        .panel-header { background: #0f172a; padding: 12px 16px; font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 800; }
-        textarea { flex-grow: 1; background: #020617; color: #9cdcfe; border: none; padding: 20px; font-family: monospace; outline: none; resize: none; font-size: 13px; line-height: 1.6; }
-        #viewer-3d { flex-grow: 1; background: #000; }
-        #chat-history { flex-grow: 1; padding: 20px; overflow-y: auto; font-size: 13px; color: #cbd5e1; display: flex; flex-direction: column; gap: 12px; }
-        .chat-input-box { padding: 20px; border-top: 1px solid #1e293b; display: flex; gap: 10px; background: #020617; }
-        .chat-input-box input { flex-grow: 1; background: #1e293b; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px; outline: none; }
+        .editor-grid { display: grid; grid-template-columns: 320px 1fr 450px; flex-grow: 1; overflow: hidden; }
+        .panel { display: flex; flex-direction: column; border-right: 1px solid #1e293b; height: 100%; background: #020617; }
+        .panel-header { background: #0f172a; padding: 12px 16px; font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 800; border-bottom: 1px solid #1e293b; }
+        
+        textarea { flex-grow: 1; background: #020617; color: #9cdcfe; border: none; padding: 20px; font-family: 'Fira Code', monospace; outline: none; resize: none; font-size: 13px; line-height: 1.6; }
+        #viewer-container { position: relative; flex-grow: 1; background: #050505; }
+        #viewer-3d { width: 100%; height: 100%; outline: none; }
 
-        .btn { padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; border: none; transition: 0.2s; white-space: nowrap; }
+        .btn { padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-save { background: var(--accent); color: #064e3b; }
-        .badge { padding: 4px 12px; border-radius: 99px; font-size: 0.7rem; background: #dcfce7; color: #15803d; font-weight: 700; }
+        .btn-render { background: #6366f1; color: white; }
+        
+        #practice-hud { display: none; position: absolute; bottom: 20px; left: 20px; right: 20px; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--primary); padding: 16px; border-radius: 12px; backdrop-filter: blur(10px); z-index: 1000; }
+        #chat-history { flex-grow: 1; padding: 20px; overflow-y: auto; font-size: 13px; display: flex; flex-direction: column; gap: 12px; background: #050814; color: #94a3b8; }
     </style>
 </head>
 <body>
 
     <nav>
-        <h2 onclick="showPage('dashboard')">BlueprintAI</h2>
+        <h2 onclick="showPage('dashboard')">BLUEPRINT<span style="color:white">AI</span></h2>
+        <div class="nav-label">Navigation</div>
         <a onclick="showPage('dashboard')" id="link-dash" class="active">🏠 Dashboard</a>
-        <a onclick="openEmptyCreator()" id="link-ai" class="highlight">✨ AI Creator</a>
-        
-        <div class="nav-label">Saved Projects</div>
+        <a onclick="openEmptyCreator()" id="link-ai">✨ AI Creator</a>
+        <div class="nav-label">Practice Library</div>
+        <a onclick="startPractice('bolt')">🔩 Tutorial: Bolt</a>
+        <a onclick="startPractice('bracket')">📐 Tutorial: Bracket</a>
+        <div class="nav-label">Recent Projects</div>
         <div id="sidebar-projects"></div>
     </nav>
 
     <div class="view-content">
         <div id="dashboard-page" class="page active">
-            <div class="header-container">
-                <div>
-                    <h1 style="margin:0; font-size: 1.8rem;">Object Library</h1>
-                    <p style="color: var(--text-light); margin: 4px 0 0 0;">Select a blueprint to edit.</p>
-                </div>
-                <div>
-                    <button class="btn btn-primary" onclick="triggerUpload()">+ New Blueprint</button>
-                    <input type="file" id="file-input" style="display: none;" accept="image/*" onchange="handleFileUpload(event)">
-                </div>
+            <h1 style="margin:0; font-size: 2rem;">Object Library</h1>
+            <p style="color: #64748b; margin-bottom: 30px;">Manage your engineering blueprints and tutorials.</p>
+            <div style="margin-bottom: 25px;">
+                <button class="btn btn-primary" onclick="openEmptyCreator()" style="padding: 12px 24px; font-size: 1rem;">+ Create New Blueprint</button>
             </div>
-
             <div class="stats-grid">
-                <div class="card"><small>Total Blueprints</small><h2 id="stat-total">0</h2></div>
-                <div class="card"><small>AI Engine</small><h2 style="color: var(--success)">Active</h2></div>
-                <div class="card"><small>Sync Status</small><h2>Local Storage</h2></div>
+                <div class="card"><small>Total Designs</small><h2 id="stat-total">0</h2></div>
+                <div class="card"><small>AI Engine</small><h2 style="color: var(--primary)">Gemini Flash</h2></div>
+                <div class="card"><small>System</small><h2>Professional OS</h2></div>
             </div>
-
-            <div class="table-container">
+            <div class="card" style="padding:0; overflow:hidden">
                 <table>
-                    <thead><tr><th>Icon</th><th>Blueprint Name</th><th>Status</th><th>Last Edit</th></tr></thead>
+                    <thead><tr><th>Icon</th><th>Blueprint Name</th><th>Status</th><th style="text-align: right;">Action</th></tr></thead>
                     <tbody id="data-table"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="ai-creator-page" class="page">
-            <div class="editor-toolbar">
-                <div>
-                    <span id="active-title" style="color: #64748b; font-size: 13px;">EDITOR / </span>
-                    <span id="project-name-display" style="font-weight: 700; color: white;">UNSAVED DRAFT</span>
-                </div>
+            <div style="height: 64px; background: #000; border-bottom: 1px solid #1e293b; display: flex; align-items: center; padding: 0 24px; justify-content: space-between;">
+                <div style="font-size: 13px;"><span style="color:#64748b">PROJECT /</span> <span id="project-name-display" style="font-weight:700">UNSAVED DRAFT</span></div>
                 <div style="display: flex; gap: 12px;">
-                    <button id="save-btn" class="btn btn-save" onclick="saveCurrentWork()">💾 Save Project</button>
-                    <button class="btn btn-primary" onclick="render3D()">Render Model</button>
+                    <button class="btn btn-render" onclick="render3D()"><span>👁️</span> Render 3D View</button>
+                    <button id="save-btn" class="btn btn-primary" style="background: var(--accent); color: #064e3b;" onclick="saveCurrentWork()">💾 Save Project</button>
                 </div>
             </div>
             <div class="editor-grid">
                 <div class="panel">
-                    <div class="panel-header">AI Assistant</div>
-                    <div id="chat-history"></div>
-                    <div class="chat-input-box">
-                        <input type="text" id="ai-prompt" placeholder="Ask AI to modify..." onkeydown="if(event.key==='Enter') askAI()">
-                        <button class="btn btn-primary" onclick="askAI()">Send</button>
+                    <div class="panel-header">AI Engineering Assistant</div>
+                    <div id="chat-history">Ready for instructions...</div>
+                    <div style="padding: 16px; border-top: 1px solid #1e293b;">
+                        <input type="text" id="ai-prompt" placeholder="Try: 'Make a sphere'..." style="width:100%; background:#1e293b; border:none; color:white; padding:12px; border-radius:8px;">
                     </div>
                 </div>
                 <div class="panel">
                     <div class="panel-header">OpenSCAD Source</div>
-                    <textarea id="code-editor" spellcheck="false" oninput="render3D()"></textarea>
+                    <textarea id="code-editor" spellcheck="false">$fn = 60;
+cube([20, 20, 20], center=true);</textarea>
                 </div>
-                <div class="panel" style="border: none;"><div class="panel-header">3D Viewport</div><div id="viewer-3d"></div></div>
+                <div id="viewer-container">
+                    <div class="panel-header">3D Engineering Viewport</div>
+                    <div id="viewer-3d"></div>
+                    <div id="practice-hud">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <small style="color: var(--primary); font-weight: 800;">STEP <span id="current-step-num">1</span></small>
+                                <div id="step-instruction" style="color: white; font-size: 0.85rem; margin-top: 4px;">...</div>
+                            </div>
+                            <button class="btn btn-primary" onclick="nextPracticeStep()">Next Step →</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -140,99 +140,37 @@
         let projects = JSON.parse(localStorage.getItem('bp_projects')) || [];
         let currentEditingId = null;
 
-        window.onload = () => {
-            updateProjectLists();
-            renderTable();
+        const tutorials = {
+            bolt: [
+                { text: "Create the bolt head.", code: "cylinder(h=5, r=10, center=true);" },
+                { text: "Add the shaft.", code: "cylinder(h=5, r=10, center=true);\ntranslate([0,0,15]) cylinder(h=30, r=5, center=true);" }
+            ],
+            bracket: [
+                { text: "L-shape base.", code: "union() {\n cube([40, 10, 2]);\n cube([2, 10, 30]);\n}" }
+            ]
         };
+        let activeTutorial = null; let activeStep = 0;
+
+        window.onload = () => { updateProjectLists(); renderTable(); };
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId + '-page').classList.add('active');
-            document.getElementById('link-dash').classList.remove('active');
-            document.getElementById('link-ai').classList.remove('active');
-            if(pageId === 'dashboard') document.getElementById('link-dash').classList.add('active');
-            else {
-                document.getElementById('link-ai').classList.add('active');
-                if(!renderer) initThreeJS();
-            }
-        }
-
-        function updateProjectLists() {
-            const sidebar = document.getElementById('sidebar-projects');
-            sidebar.innerHTML = '';
-            projects.forEach(p => {
-                sidebar.innerHTML += `<a onclick="loadProject('${p.id}')">${p.icon} ${p.name}</a>`;
-            });
-            document.getElementById('stat-total').innerText = projects.length;
-            localStorage.setItem('bp_projects', JSON.stringify(projects));
-        }
-
-        function renderTable() {
-            const table = document.getElementById('data-table');
-            table.innerHTML = '';
-            projects.forEach(p => {
-                const row = table.insertRow();
-                row.onclick = () => loadProject(p.id);
-                row.innerHTML = `<td>${p.icon}</td><td><strong>${p.name}</strong></td><td><span class="badge">Ready</span></td><td>Now</td>`;
-            });
-        }
-
-        function openEmptyCreator() {
-            currentEditingId = null; // Mark as unsaved draft
-            document.getElementById('project-name-display').innerText = "UNSAVED DRAFT";
-            document.getElementById('code-editor').value = 'cube([20,20,20], center=true);';
-            document.getElementById('save-btn').innerText = "💾 Save Project";
-            showPage('ai-creator');
-            if(renderer) render3D();
-        }
-
-        function saveCurrentWork() {
-            const code = document.getElementById('code-editor').value;
             
-            if (currentEditingId === null) {
-                // It's a new project
-                const name = prompt("Enter a name for your new blueprint:", "New Object");
-                if (!name) return;
-                
-                const newProj = { id: Date.now(), name: name, code: code, icon: '📦' };
-                projects.push(newProj);
-                currentEditingId = newProj.id;
-                document.getElementById('project-name-display').innerText = name.toUpperCase();
-            } else {
-                // Update existing project
-                const index = projects.findIndex(p => p.id == currentEditingId);
-                projects[index].code = code;
+            if(pageId === 'ai-creator') {
+                if(!renderer) {
+                    initThreeJS();
+                } else {
+                    // Force resize on visibility change
+                    setTimeout(() => {
+                        const container = document.getElementById('viewer-3d');
+                        renderer.setSize(container.clientWidth, container.clientHeight);
+                        camera.aspect = container.clientWidth / container.clientHeight;
+                        camera.updateProjectionMatrix();
+                        render3D();
+                    }, 50);
+                }
             }
-
-            updateProjectLists();
-            renderTable();
-            
-            const btn = document.getElementById('save-btn');
-            btn.innerText = "✅ Saved!";
-            setTimeout(() => { btn.innerText = "💾 Save Project"; }, 2000);
-        }
-
-        function loadProject(id) {
-            const project = projects.find(p => p.id == id);
-            if(!project) return;
-            currentEditingId = id;
-            document.getElementById('project-name-display').innerText = project.name.toUpperCase();
-            document.getElementById('code-editor').value = project.code;
-            showPage('ai-creator');
-            if(renderer) render3D();
-        }
-
-        function triggerUpload() { document.getElementById('file-input').click(); }
-
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const name = file.name.split('.')[0];
-            const newProj = { id: Date.now(), name: name, code: 'sphere(r=15);', icon: '🖼️' };
-            projects.push(newProj);
-            updateProjectLists();
-            renderTable();
-            loadProject(newProj.id);
         }
 
         function initThreeJS() {
@@ -240,38 +178,163 @@
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
             camera.position.set(50, 50, 50);
-            renderer = new THREE.WebGLRenderer({ antialias: true });
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
             container.appendChild(renderer.domElement);
-            scene.add(new THREE.GridHelper(100, 40, 0x222222, 0x111111));
-            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            
+            scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(10, 20, 10);
+            scene.add(directionalLight);
+            
+            scene.add(new THREE.GridHelper(100, 20, 0x2563eb, 0x1e293b));
+            
             controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            
             animate();
+            render3D();
         }
 
         function render3D() {
-            if (currentMesh) scene.remove(currentMesh);
+            if (!renderer) return;
+            if (currentMesh) {
+                scene.remove(currentMesh);
+                currentMesh.geometry.dispose();
+                currentMesh.material.dispose();
+            }
+
             const code = document.getElementById('code-editor').value.toLowerCase();
             let geo;
-            const r = parseFloat(code.match(/r\s*=\s*([\d.]+)/)?.[1]) || 10;
-            const h = parseFloat(code.match(/h\s*=\s*([\d.]+)/)?.[1]) || 20;
-            if (code.includes("sphere")) geo = new THREE.SphereGeometry(r, 32, 32);
-            else if (code.includes("cylinder")) geo = new THREE.CylinderGeometry(r, r, h, 32);
-            else geo = new THREE.BoxGeometry(15, 15, 15);
-            currentMesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: 0x2563eb }));
+            
+            if (code.includes("cylinder")) geo = new THREE.CylinderGeometry(8, 8, 25, 32);
+            else if (code.includes("sphere")) geo = new THREE.SphereGeometry(12, 32, 32);
+            else geo = new THREE.BoxGeometry(20, 20, 20);
+
+            currentMesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: 0x2563eb, shininess: 100 }));
             scene.add(currentMesh);
         }
 
-        function askAI() {
-            const input = document.getElementById('ai-prompt');
-            const history = document.getElementById('chat-history');
-            if (!input.value) return;
-            history.innerHTML += `<div><strong>YOU:</strong> ${input.value}</div>`;
-            input.value = "";
-            setTimeout(() => { history.innerHTML += `<div><strong>AI:</strong> Logic updated. Click Save to keep changes.</div>`; }, 600);
+        // Basic AI Logic
+        document.getElementById('ai-prompt').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const input = this.value.toLowerCase();
+                const history = document.getElementById('chat-history');
+                let response = "I've updated the design for you.";
+                
+                if(input.includes("sphere")) {
+                    document.getElementById('code-editor').value = "sphere(r=15);";
+                } else if(input.includes("cylinder")) {
+                    document.getElementById('code-editor').value = "cylinder(h=30, r=10);";
+                } else if(input.includes("cube") || input.includes("box")) {
+                    document.getElementById('code-editor').value = "cube([20,20,20], center=true);";
+                }
+                
+                history.innerHTML += `<div><b>You:</b> ${this.value}</div>`;
+                history.innerHTML += `<div style="color:var(--accent)"><b>AI:</b> ${response}</div>`;
+                this.value = "";
+                render3D();
+                history.scrollTop = history.scrollHeight;
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if(!renderer) return;
+            const container = document.getElementById('viewer-3d');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        function startPractice(type) {
+            activeTutorial = tutorials[type]; activeStep = 0;
+            showPage('ai-creator');
+            document.getElementById('practice-hud').style.display = 'block';
+            updateTutorialStep();
         }
 
-        function animate() { requestAnimationFrame(animate); if(controls) controls.update(); renderer.render(scene, camera); }
+        function updateTutorialStep() {
+            const step = activeTutorial[activeStep];
+            document.getElementById('current-step-num').innerText = activeStep + 1;
+            document.getElementById('step-instruction').innerText = step.text;
+            document.getElementById('code-editor').value = step.code;
+            render3D();
+        }
+
+        function nextPracticeStep() {
+            if (activeStep < activeTutorial.length - 1) { activeStep++; updateTutorialStep(); }
+            else { alert("Tutorial Complete!"); document.getElementById('practice-hud').style.display = 'none'; }
+        }
+
+        function saveCurrentWork() {
+            const code = document.getElementById('code-editor').value;
+            if (currentEditingId === null) {
+                const name = prompt("Name this project:", "New Object");
+                if (!name) return;
+                const newP = { id: Date.now(), name: name, code: code, icon: '⚙️' };
+                projects.push(newP);
+                currentEditingId = newP.id;
+            } else {
+                const idx = projects.findIndex(p => p.id == currentEditingId);
+                projects[idx].code = code;
+            }
+            updateProjectLists(); renderTable();
+        }
+
+        function renderTable() {
+            const table = document.getElementById('data-table');
+            table.innerHTML = '';
+            projects.forEach(p => {
+                const row = table.insertRow();
+                row.innerHTML = `<td>${p.icon}</td><td><strong>${p.name}</strong></td><td><span class="badge">Ready</span></td>
+                <td style="text-align: right;">
+                    <button class="btn-table-open" onclick="loadProject(${p.id})">Open Design</button>
+                    <button class="btn-delete" onclick="deleteProject(${p.id})">🗑️</button>
+                </td>`;
+            });
+            document.getElementById('stat-total').innerText = projects.length;
+        }
+
+        function deleteProject(id) {
+            if(confirm("Delete this design?")) {
+                projects = projects.filter(p => p.id !== id);
+                updateProjectLists(); renderTable();
+            }
+        }
+
+        function loadProject(id) {
+            const p = projects.find(x => x.id == id);
+            currentEditingId = id;
+            document.getElementById('code-editor').value = p.code;
+            document.getElementById('project-name-display').innerText = p.name.toUpperCase();
+            document.getElementById('practice-hud').style.display = 'none';
+            showPage('ai-creator');
+        }
+
+        function updateProjectLists() {
+            const side = document.getElementById('sidebar-projects');
+            side.innerHTML = '';
+            projects.slice(-5).forEach(p => {
+                side.innerHTML += `<a onclick="loadProject('${p.id}')">${p.icon} ${p.name}</a>`;
+            });
+            localStorage.setItem('bp_projects', JSON.stringify(projects));
+        }
+
+        function openEmptyCreator() {
+            currentEditingId = null;
+            document.getElementById('project-name-display').innerText = "NEW DRAFT";
+            document.getElementById('code-editor').value = "$fn = 60;\ncube([20, 20, 20], center=true);";
+            document.getElementById('practice-hud').style.display = 'none';
+            showPage('ai-creator');
+        }
+
+        function animate() { 
+            requestAnimationFrame(animate); 
+            if(controls) controls.update(); 
+            if(renderer) renderer.render(scene, camera); 
+        }
     </script>
 </body>
 </html>
