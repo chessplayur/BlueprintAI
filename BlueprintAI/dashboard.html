@@ -22,17 +22,36 @@
         }
 
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); color: var(--text-dark); overflow: hidden; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            height: 100vh; 
+            background: var(--bg); 
+            color: var(--text-dark); 
+            overflow: hidden; 
+        }
 
-        nav { width: 280px; background: var(--sidebar); color: white; padding: 24px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; border-right: 1px solid var(--border); overflow-y: auto; }
+        nav { 
+            width: 280px; 
+            background: var(--sidebar); 
+            color: white; 
+            padding: 24px; 
+            display: flex; 
+            flex-direction: column; 
+            flex-shrink: 0; 
+            z-index: 10; 
+            border-right: 1px solid var(--border); 
+            overflow-y: auto; 
+        }
         nav h2 { font-size: 1.25rem; margin-bottom: 32px; color: var(--primary); font-weight: 800; cursor: pointer; letter-spacing: -1px; }
         .nav-label { font-size: 0.7rem; color: #475569; text-transform: uppercase; margin: 24px 0 12px 5px; letter-spacing: 1px; font-weight: 700; }
         nav a { color: #cbd5e1; text-decoration: none; padding: 10px 12px; border-radius: 8px; margin-bottom: 4px; display: block; font-size: 0.85rem; transition: 0.2s; cursor: pointer; }
         nav a:hover, nav a.active { background: #1e293b; color: white; }
 
         .view-content { flex-grow: 1; height: 100vh; position: relative; display: flex; flex-direction: column; min-width: 0; }
-        .page { display: none; height: 100%; width: 100%; overflow: hidden; }
-        .page.active { display: flex; flex-direction: column; }
+        .page { display: none; height: 100%; width: 100%; }
+        .page.active { display: flex; flex-direction: column; flex: 1; }
 
         #dashboard-page { padding: 40px; overflow-y: auto; background: #f8fafc; color: #1e293b; }
         .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; }
@@ -47,20 +66,42 @@
         .btn-delete { color: #94a3b8; cursor: pointer; background: none; border: none; font-size: 1.1rem; padding: 5px; margin-left: 10px; }
         .badge { background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; }
 
-        .editor-grid { display: grid; grid-template-columns: 320px 1fr 450px; flex-grow: 1; overflow: hidden; }
-        .panel { display: flex; flex-direction: column; border-right: 1px solid #1e293b; height: 100%; background: #020617; }
+        .editor-grid { display: grid; grid-template-columns: 320px 1fr 450px; flex-grow: 1; overflow: hidden; background: #020617; }
+        .panel { display: flex; flex-direction: column; border-right: 1px solid #1e293b; height: 100%; background: #020617; position: relative; }
         .panel-header { background: #0f172a; padding: 12px 16px; font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 800; border-bottom: 1px solid #1e293b; }
         
         textarea { flex-grow: 1; background: #020617; color: #9cdcfe; border: none; padding: 20px; font-family: 'Fira Code', monospace; outline: none; resize: none; font-size: 13px; line-height: 1.6; }
-        #viewer-container { position: relative; flex-grow: 1; background: #050505; }
-        #viewer-3d { width: 100%; height: 100%; outline: none; }
+        
+        #viewer-container { position: relative; flex-grow: 1; background: #050505; display: flex; flex-direction: column; }
+        #viewer-3d { flex-grow: 1; width: 100%; outline: none; }
 
         .btn { padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-render { background: #6366f1; color: white; }
         
-        #practice-hud { display: none; position: absolute; bottom: 20px; left: 20px; right: 20px; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--primary); padding: 16px; border-radius: 12px; backdrop-filter: blur(10px); z-index: 1000; }
+        #practice-hud { 
+            display: none; 
+            position: absolute; 
+            bottom: 20px; 
+            left: 20px; 
+            right: 20px; 
+            background: rgba(15, 23, 42, 0.95); 
+            border: 1px solid var(--primary); 
+            padding: 16px; 
+            border-radius: 12px; 
+            backdrop-filter: blur(10px); 
+            z-index: 1000; 
+        }
         #chat-history { flex-grow: 1; padding: 20px; overflow-y: auto; font-size: 13px; display: flex; flex-direction: column; gap: 12px; background: #050814; color: #94a3b8; }
+        
+        #img-reference-preview {
+            width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+            background: #000;
+            display: none;
+            border-bottom: 1px solid var(--border);
+        }
     </style>
 </head>
 <body>
@@ -73,6 +114,8 @@
         <div class="nav-label">Practice Library</div>
         <a onclick="startPractice('bolt')">🔩 Tutorial: Bolt</a>
         <a onclick="startPractice('bracket')">📐 Tutorial: Bracket</a>
+        <div class="nav-label">About</div>
+        <a href="about.html">About BlueprintAI</a>
         <div class="nav-label">Recent Projects</div>
         <div id="sidebar-projects"></div>
     </nav>
@@ -81,8 +124,10 @@
         <div id="dashboard-page" class="page active">
             <h1 style="margin:0; font-size: 2rem;">Object Library</h1>
             <p style="color: #64748b; margin-bottom: 30px;">Manage your engineering blueprints and tutorials.</p>
-            <div style="margin-bottom: 25px;">
-                <button class="btn btn-primary" onclick="openEmptyCreator()" style="padding: 12px 24px; font-size: 1rem;">+ Create New Blueprint</button>
+            <div style="margin-bottom: 25px; display: flex; gap: 12px;">
+                <button class="btn btn-primary" onclick="triggerImageUpload()" style="padding: 12px 24px; font-size: 1rem;">+ Create from Image</button>
+                <button class="btn" onclick="openEmptyCreator()" style="background: #e2e8f0; color: #1e293b; padding: 12px 24px; font-size: 1rem;">+ Blank Blueprint</button>
+                <input type="file" id="blueprint-upload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
             </div>
             <div class="stats-grid">
                 <div class="card"><small>Total Designs</small><h2 id="stat-total">0</h2></div>
@@ -98,7 +143,7 @@
         </div>
 
         <div id="ai-creator-page" class="page">
-            <div style="height: 64px; background: #000; border-bottom: 1px solid #1e293b; display: flex; align-items: center; padding: 0 24px; justify-content: space-between;">
+            <div style="height: 64px; background: #000; border-bottom: 1px solid #1e293b; display: flex; align-items: center; padding: 0 24px; justify-content: space-between; flex-shrink: 0;">
                 <div style="font-size: 13px;"><span style="color:#64748b">PROJECT /</span> <span id="project-name-display" style="font-weight:700">UNSAVED DRAFT</span></div>
                 <div style="display: flex; gap: 12px;">
                     <button class="btn btn-render" onclick="render3D()"><span>👁️</span> Render 3D View</button>
@@ -107,6 +152,8 @@
             </div>
             <div class="editor-grid">
                 <div class="panel">
+                    <div class="panel-header" id="ref-header" style="display:none">Reference Image</div>
+                    <img id="img-reference-preview" src="" alt="Reference">
                     <div class="panel-header">AI Engineering Assistant</div>
                     <div id="chat-history">Ready for instructions...</div>
                     <div style="padding: 16px; border-top: 1px solid #1e293b;">
@@ -136,7 +183,7 @@ cube([20, 20, 20], center=true);</textarea>
     </div>
 
     <script>
-        let scene, camera, renderer, currentMesh, controls;
+        let scene, camera, renderer, modelGroup, controls;
         let projects = JSON.parse(localStorage.getItem('bp_projects')) || [];
         let currentEditingId = null;
 
@@ -146,107 +193,217 @@ cube([20, 20, 20], center=true);</textarea>
                 { text: "Add the shaft.", code: "cylinder(h=5, r=10, center=true);\ntranslate([0,0,15]) cylinder(h=30, r=5, center=true);" }
             ],
             bracket: [
-                { text: "L-shape base.", code: "union() {\n cube([40, 10, 2]);\n cube([2, 10, 30]);\n}" }
+                { text: "L-shape base.", code: "cube([40, 10, 2]);\ntranslate([0,0,0]) cube([2, 10, 30]);" }
             ]
         };
-        let activeTutorial = null; let activeStep = 0;
+        let activeTutorial = null; 
+        let activeStep = 0;
 
-        window.onload = () => { updateProjectLists(); renderTable(); };
+        window.onload = () => { 
+            updateProjectLists(); 
+            renderTable(); 
+        };
+
+        function triggerImageUpload() {
+            document.getElementById('blueprint-upload').click();
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const name = prompt("Enter a name for this image-based blueprint:", "Image Project");
+                if (name) {
+                    const newId = Date.now();
+                    projects.push({ 
+                        id: newId, 
+                        name: name, 
+                        code: "// Image reference loaded.\ncube([10,10,10]);", 
+                        icon: '🖼️',
+                        image: e.target.result 
+                    });
+                    updateProjectLists(); 
+                    renderTable();
+                    loadProject(newId);
+                }
+                event.target.value = "";
+            };
+            reader.readAsDataURL(file);
+        }
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId + '-page').classList.add('active');
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
             
+            if(pageId === 'dashboard') document.getElementById('link-dash').classList.add('active');
             if(pageId === 'ai-creator') {
-                if(!renderer) {
-                    initThreeJS();
-                } else {
-                    // Force resize on visibility change
-                    setTimeout(() => {
-                        const container = document.getElementById('viewer-3d');
-                        renderer.setSize(container.clientWidth, container.clientHeight);
-                        camera.aspect = container.clientWidth / container.clientHeight;
-                        camera.updateProjectionMatrix();
-                        render3D();
-                    }, 50);
-                }
+                document.getElementById('link-ai').classList.add('active');
+                if(!renderer) initThreeJS();
+                setTimeout(() => { handleResize(); render3D(); }, 50);
             }
+        }
+
+        function openEmptyCreator() {
+            currentEditingId = null;
+            document.getElementById('project-name-display').innerText = "NEW DRAFT";
+            document.getElementById('code-editor').value = "$fn = 60;\ncube([20, 20, 20], center=true);";
+            document.getElementById('img-reference-preview').style.display = 'none';
+            document.getElementById('ref-header').style.display = 'none';
+            document.getElementById('practice-hud').style.display = 'none';
+            showPage('ai-creator');
+        }
+
+        function loadProject(id) {
+            const p = projects.find(x => x.id == id);
+            currentEditingId = id;
+            document.getElementById('code-editor').value = p.code;
+            document.getElementById('project-name-display').innerText = p.name.toUpperCase();
+            
+            const imgPreview = document.getElementById('img-reference-preview');
+            const refHeader = document.getElementById('ref-header');
+            if(p.image) {
+                imgPreview.src = p.image;
+                imgPreview.style.display = 'block';
+                refHeader.style.display = 'block';
+            } else {
+                imgPreview.style.display = 'none';
+                refHeader.style.display = 'none';
+            }
+            showPage('ai-creator');
+        }
+
+        function saveCurrentWork() {
+            const code = document.getElementById('code-editor').value;
+            if (currentEditingId === null) {
+                const name = prompt("Name this project:", "New Object");
+                if (!name) return;
+                const newP = { id: Date.now(), name: name, code: code, icon: '⚙️' };
+                projects.push(newP);
+                currentEditingId = newP.id;
+            } else {
+                const idx = projects.findIndex(p => p.id == currentEditingId);
+                projects[idx].code = code;
+            }
+            updateProjectLists(); 
+            renderTable();
         }
 
         function initThreeJS() {
             const container = document.getElementById('viewer-3d');
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(50, 50, 50);
+            camera.position.set(60, 60, 60);
             
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
             container.appendChild(renderer.domElement);
             
             scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-            directionalLight.position.set(10, 20, 10);
-            scene.add(directionalLight);
+            const dl = new THREE.DirectionalLight(0xffffff, 0.6); dl.position.set(20, 40, 20); scene.add(dl);
             
             scene.add(new THREE.GridHelper(100, 20, 0x2563eb, 0x1e293b));
-            
+            modelGroup = new THREE.Group();
+            scene.add(modelGroup);
+
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
-            
             animate();
-            render3D();
         }
 
-        function render3D() {
-            if (!renderer) return;
-            if (currentMesh) {
-                scene.remove(currentMesh);
-                currentMesh.geometry.dispose();
-                currentMesh.material.dispose();
-            }
-
-            const code = document.getElementById('code-editor').value.toLowerCase();
-            let geo;
-            
-            if (code.includes("cylinder")) geo = new THREE.CylinderGeometry(8, 8, 25, 32);
-            else if (code.includes("sphere")) geo = new THREE.SphereGeometry(12, 32, 32);
-            else geo = new THREE.BoxGeometry(20, 20, 20);
-
-            currentMesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: 0x2563eb, shininess: 100 }));
-            scene.add(currentMesh);
-        }
-
-        // Basic AI Logic
-        document.getElementById('ai-prompt').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const input = this.value.toLowerCase();
-                const history = document.getElementById('chat-history');
-                let response = "I've updated the design for you.";
-                
-                if(input.includes("sphere")) {
-                    document.getElementById('code-editor').value = "sphere(r=15);";
-                } else if(input.includes("cylinder")) {
-                    document.getElementById('code-editor').value = "cylinder(h=30, r=10);";
-                } else if(input.includes("cube") || input.includes("box")) {
-                    document.getElementById('code-editor').value = "cube([20,20,20], center=true);";
-                }
-                
-                history.innerHTML += `<div><b>You:</b> ${this.value}</div>`;
-                history.innerHTML += `<div style="color:var(--accent)"><b>AI:</b> ${response}</div>`;
-                this.value = "";
-                render3D();
-                history.scrollTop = history.scrollHeight;
-            }
-        });
-
-        window.addEventListener('resize', () => {
+        function handleResize() {
             if(!renderer) return;
             const container = document.getElementById('viewer-3d');
             camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(container.clientWidth, container.clientHeight);
-        });
+        }
+
+        window.addEventListener('resize', handleResize);
+
+        // REWRITTEN: Now correctly parses OpenSCAD-like commands to build actual models
+        function render3D() {
+            if (!renderer) return;
+            
+            // Clear existing model
+            while(modelGroup.children.length > 0){ 
+                modelGroup.remove(modelGroup.children[0]); 
+            }
+
+            const code = document.getElementById('code-editor').value;
+            const lines = code.split(';');
+
+            let currentTranslation = [0, 0, 0];
+
+            lines.forEach(line => {
+                const cleanLine = line.trim().toLowerCase();
+                if (!cleanLine || cleanLine.startsWith("//") || cleanLine.startsWith("$")) return;
+
+                // Handle translate([x,y,z])
+                if (cleanLine.includes("translate")) {
+                    const match = cleanLine.match(/translate\(\s*\[(.*?)\]\s*\)/);
+                    if (match) {
+                        currentTranslation = match[1].split(',').map(n => parseFloat(n.trim()));
+                    }
+                }
+
+                let mesh = null;
+                const material = new THREE.MeshPhongMaterial({ color: 0x2563eb, flatShading: false });
+
+                // Handle cube([x,y,z])
+                if (cleanLine.includes("cube")) {
+                    const match = cleanLine.match(/cube\(\s*\[(.*?)\]/);
+                    const dims = match ? match[1].split(',').map(n => parseFloat(n.trim())) : [10, 10, 10];
+                    mesh = new THREE.Mesh(new THREE.BoxGeometry(dims[0], dims[2], dims[1]), material);
+                } 
+                // Handle cylinder(h, r)
+                else if (cleanLine.includes("cylinder")) {
+                    const hMatch = cleanLine.match(/h\s*=\s*(\d+(\.\d+)?)/);
+                    const rMatch = cleanLine.match(/r\s*=\s*(\d+(\.\d+)?)/);
+                    const h = hMatch ? parseFloat(hMatch[1]) : 20;
+                    const r = rMatch ? parseFloat(rMatch[1]) : 5;
+                    mesh = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 32), material);
+                }
+                // Handle sphere(r)
+                else if (cleanLine.includes("sphere")) {
+                    const rMatch = cleanLine.match(/r\s*=\s*(\d+(\.\d+)?)/);
+                    const r = rMatch ? parseFloat(rMatch[1]) : 10;
+                    mesh = new THREE.Mesh(new THREE.SphereGeometry(r, 32, 32), material);
+                }
+
+                if (mesh) {
+                    // OpenSCAD Z is ThreeJS Y
+                    mesh.position.set(currentTranslation[0], currentTranslation[2], currentTranslation[1]);
+                    modelGroup.add(mesh);
+                    // Reset translation for the next object unless inside a scope (simplified)
+                    currentTranslation = [0, 0, 0];
+                }
+            });
+        }
+
+        function renderTable() {
+            const table = document.getElementById('data-table');
+            table.innerHTML = '';
+            projects.forEach(p => {
+                const row = table.insertRow();
+                row.innerHTML = `<td>${p.icon}</td><td><strong>${p.name}</strong></td><td><span class="badge">Ready</span></td>
+                <td style="text-align: right;"><button class="btn-table-open" onclick="loadProject(${p.id})">Open</button>
+                <button class="btn-delete" onclick="deleteProject(${p.id})">🗑️</button></td>`;
+            });
+            document.getElementById('stat-total').innerText = projects.length;
+        }
+
+        function deleteProject(id) {
+            if(confirm("Delete?")) { projects = projects.filter(p => p.id !== id); updateProjectLists(); renderTable(); }
+        }
+
+        function updateProjectLists() {
+            const side = document.getElementById('sidebar-projects');
+            side.innerHTML = '';
+            projects.slice(-5).forEach(p => { side.innerHTML += `<a onclick="loadProject(${p.id})">${p.icon} ${p.name}</a>`; });
+            localStorage.setItem('bp_projects', JSON.stringify(projects));
+        }
 
         function startPractice(type) {
             activeTutorial = tutorials[type]; activeStep = 0;
@@ -264,70 +421,8 @@ cube([20, 20, 20], center=true);</textarea>
         }
 
         function nextPracticeStep() {
-            if (activeStep < activeTutorial.length - 1) { activeStep++; updateTutorialStep(); }
+            if (activeStep < activeTutorial.length - 1) { activeStep++; updateTutorialStep(); } 
             else { alert("Tutorial Complete!"); document.getElementById('practice-hud').style.display = 'none'; }
-        }
-
-        function saveCurrentWork() {
-            const code = document.getElementById('code-editor').value;
-            if (currentEditingId === null) {
-                const name = prompt("Name this project:", "New Object");
-                if (!name) return;
-                const newP = { id: Date.now(), name: name, code: code, icon: '⚙️' };
-                projects.push(newP);
-                currentEditingId = newP.id;
-            } else {
-                const idx = projects.findIndex(p => p.id == currentEditingId);
-                projects[idx].code = code;
-            }
-            updateProjectLists(); renderTable();
-        }
-
-        function renderTable() {
-            const table = document.getElementById('data-table');
-            table.innerHTML = '';
-            projects.forEach(p => {
-                const row = table.insertRow();
-                row.innerHTML = `<td>${p.icon}</td><td><strong>${p.name}</strong></td><td><span class="badge">Ready</span></td>
-                <td style="text-align: right;">
-                    <button class="btn-table-open" onclick="loadProject(${p.id})">Open Design</button>
-                    <button class="btn-delete" onclick="deleteProject(${p.id})">🗑️</button>
-                </td>`;
-            });
-            document.getElementById('stat-total').innerText = projects.length;
-        }
-
-        function deleteProject(id) {
-            if(confirm("Delete this design?")) {
-                projects = projects.filter(p => p.id !== id);
-                updateProjectLists(); renderTable();
-            }
-        }
-
-        function loadProject(id) {
-            const p = projects.find(x => x.id == id);
-            currentEditingId = id;
-            document.getElementById('code-editor').value = p.code;
-            document.getElementById('project-name-display').innerText = p.name.toUpperCase();
-            document.getElementById('practice-hud').style.display = 'none';
-            showPage('ai-creator');
-        }
-
-        function updateProjectLists() {
-            const side = document.getElementById('sidebar-projects');
-            side.innerHTML = '';
-            projects.slice(-5).forEach(p => {
-                side.innerHTML += `<a onclick="loadProject('${p.id}')">${p.icon} ${p.name}</a>`;
-            });
-            localStorage.setItem('bp_projects', JSON.stringify(projects));
-        }
-
-        function openEmptyCreator() {
-            currentEditingId = null;
-            document.getElementById('project-name-display').innerText = "NEW DRAFT";
-            document.getElementById('code-editor').value = "$fn = 60;\ncube([20, 20, 20], center=true);";
-            document.getElementById('practice-hud').style.display = 'none';
-            showPage('ai-creator');
         }
 
         function animate() { 
