@@ -114,6 +114,8 @@
         <div class="nav-label">Practice Library</div>
         <a onclick="startPractice('bolt')">🔩 Tutorial: Bolt</a>
         <a onclick="startPractice('bracket')">📐 Tutorial: Bracket</a>
+         <a onclick="startPractice('cube')">📐 Tutorial: Cube</a>
+          <a onclick="startPractice('sphere')">📐 Tutorial: Tree</a>
         <div class="nav-label">About</div>
         <a href="about.html">About BlueprintAI</a>
         <div class="nav-label">Recent Projects</div>
@@ -186,7 +188,7 @@ cube([20, 20, 20], center=true);</textarea>
         let scene, camera, renderer, modelGroup, controls;
         let projects = JSON.parse(localStorage.getItem('bp_projects')) || [];
         let currentEditingId = null;
-
+     // Tutorial code
         const tutorials = {
             bolt: [
                 { text: "Create the bolt head.", code: "cylinder(h=5, r=10, center=true);" },
@@ -194,6 +196,14 @@ cube([20, 20, 20], center=true);</textarea>
             ],
             bracket: [
                 { text: "L-shape base.", code: "cube([40, 10, 2]);\ntranslate([0,0,0]) cube([2, 10, 30]);" }
+            ], 
+            cube: [
+                { text: "Start with a cube.", code: "cube([20, 20, 20], center=true);" },
+                { text: "Hollow it out.", code: "difference() {\ncube([20, 20, 20], center=true);\ntranslate([2,2,2]) cube([16,16,16], center=true);\n}" }
+            ], 
+            sphere: [
+                { text: "Create a high resolution sphere.", code: "sphere(2, $fn=100);" },
+                { text: "Add a cylindrical hole.", code: "difference() {\nsphere(r=10);\ntranslate([0,0,-15]) cylinder(h=30, r=3, center=true);\n}" }
             ]
         };
         let activeTutorial = null; 
