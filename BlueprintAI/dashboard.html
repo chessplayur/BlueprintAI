@@ -112,12 +112,14 @@
         <a onclick="showPage('dashboard')" id="link-dash" class="active">🏠 Dashboard</a>
         <a onclick="openEmptyCreator()" id="link-ai">✨ AI Creator</a>
         <div class="nav-label">Practice Library</div>
-        <a onclick="startPractice('bolt')">🔩 Tutorial: Bolt</a>
+        <a onclick="startPractice('bolt')">📐 Tutorial: Bolt</a>
         <a onclick="startPractice('bracket')">📐 Tutorial: Bracket</a>
          <a onclick="startPractice('cube')">📐 Tutorial: Cube</a>
-          <a onclick="startPractice('sphere')">📐 Tutorial: Tree</a>
+          <a onclick="startPractice('sphere')">📐 Tutorial: Sphere</a>
         <div class="nav-label">About</div>
         <a href="about.html">About BlueprintAI</a>
+        <div class="nav-label">Reference Functions</div>
+        <a href="function.html">OpenSCAD Cheatsheet</a>
         <div class="nav-label">Recent Projects</div>
         <div id="sidebar-projects"></div>
     </nav>
@@ -202,8 +204,8 @@ cube([20, 20, 20], center=true);</textarea>
                 { text: "Hollow it out.", code: "difference() {\ncube([20, 20, 20], center=true);\ntranslate([2,2,2]) cube([16,16,16], center=true);\n}" }
             ], 
             sphere: [
-                { text: "Create a high resolution sphere.", code: "sphere(2, $fn=100);" },
-                { text: "Add a cylindrical hole.", code: "difference() {\nsphere(r=10);\ntranslate([0,0,-15]) cylinder(h=30, r=3, center=true);\n}" }
+                { text: "Create a high resolution sphere. The first number is the radius and the second is the number of facets.", code: "sphere(2, $fn=100);" }
+               
             ]
         };
         let activeTutorial = null; 
