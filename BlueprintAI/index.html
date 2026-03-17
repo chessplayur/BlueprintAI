@@ -12,6 +12,23 @@
             --card-bg: rgba(30, 41, 59, 0.5);
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
+            --nav-bg: rgba(0, 0, 0, 0.3);
+            --border: rgba(255,255,255,0.05);
+            --btn-bg: var(--primary);
+            --btn-text: #fff;
+        }
+
+        [data-theme="light"] {
+            --primary: #2563eb;
+            --primary-glow: rgba(37, 99, 235, 0.4);
+            --bg: #f4f7f6;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #0b1220;
+            --text-dim: #4b5563;
+            --nav-bg: rgba(255, 255, 255, 0.6);
+            --border: rgba(0,0,0,0.08);
+            --btn-bg: #2563eb;
+            --btn-text: #fff;
         }
 
         * { box-sizing: border-box; transition: all 0.3s ease; }
@@ -94,6 +111,22 @@
             box-shadow: 0 0 30px var(--primary-glow);
         }
 
+        .theme-toggle {
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            border: none;
+            border-radius: 999px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: transform 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+        }
+
         /* --- Features Section --- */
         .features {
             display: grid;
@@ -148,6 +181,7 @@
             <a href="#features">Features</a>
             <a href="dashboard.html">Dashboard</a>
             <a href="dashboard.html" class="btn-main" style="padding: 10px 20px; margin-left: 20px;">Launch App</a>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle light/dark mode" style="margin-left: 20px;">🌙</button>
         </div>
     </nav>
 
@@ -180,5 +214,34 @@
         <br>Built for the next generation of manufacturing.
     </footer>
 
+    <script>
+        const indexThemeToggle = document.getElementById('theme-toggle');
+        const indexThemeKey = 'blueprint-theme';
+
+        const indexPreferred = () => {
+            const stored = localStorage.getItem(indexThemeKey);
+            if (stored === 'light' || stored === 'dark') return stored;
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        };
+
+        const indexApplyTheme = theme => {
+            document.documentElement.dataset.theme = theme;
+            if (indexThemeToggle) {
+                indexThemeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+                indexThemeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+            }
+        };
+
+        const indexToggleTheme = () => {
+            const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem(indexThemeKey, next);
+            indexApplyTheme(next);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            indexApplyTheme(indexPreferred());
+            if (indexThemeToggle) indexThemeToggle.addEventListener('click', indexToggleTheme);
+        });
+    </script>
 </body>
 </html>
