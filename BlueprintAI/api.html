@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenSCAD API Reference</title>
+    <style>
+        :root {
+            --bg: #f4f7f6;
+            --text: #333;
+            --header-border: #2c3e50;
+            --title: #2c3e50;
+            --category-bg: #2c3e50;
+            --card-bg: #fff;
+            --card-border: #3498db;
+            --function-name: #e67e22;
+            --code-bg: #eee;
+            --link: #2563eb;
+            --link-hover: rgba(37, 99, 235, 0.9);
+            --tooltip-bg: rgba(0, 0, 0, 0.85);
+            --tooltip-text: #fff;
+            --button-bg: #2563eb;
+            --button-text: #fff;
+            --param-bg: #f8f9fa;
+            --example-bg: #f1f3f4;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0b1220;
+            --text: #e8eef7;
+            --header-border: #415168;
+            --title: #e8eef7;
+            --category-bg: #1d2738;
+            --card-bg: #162032;
+            --card-border: #4f7ce1;
+            --function-name: #f3b04b;
+            --code-bg: #1b2431;
+            --link: #7da7ff;
+            --link-hover: #aac7ff;
+            --tooltip-bg: rgba(0, 0, 0, 0.85);
+            --tooltip-text: #f4f7fb;
+            --button-bg: #4f7ce1;
+            --button-text: #fff;
+            --param-bg: #1a2332;
+            --example-bg: #1d2738;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg);
+        }
+
+        header {
+            border-bottom: 3px solid var(--header-border);
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        h1 { color: var(--title); margin: 0; }
+
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid var(--card-border);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        #search-input:focus {
+            outline: none;
+            border-color: var(--function-name);
+        }
+
+        .category {
+            margin-bottom: 40px;
+        }
+
+        .category-title {
+            background: var(--category-bg);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+
+        .function-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--card-border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .function-name {
+            font-family: "Fira Code", "Courier New", monospace;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: var(--function-name);
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            font-size: 0.95em;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .parameters {
+            background: var(--param-bg);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            border-left: 3px solid var(--card-border);
+        }
+
+        .parameters h4 {
+            margin: 0 0 8px 0;
+            color: var(--function-name);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .param-item {
+            margin-bottom: 6px;
+            font-size: 0.85em;
+        }
+
+        .param-name {
+            font-weight: bold;
+            color: var(--link);
+        }
+
+        .param-type {
+            color: #666;
+            font-style: italic;
+        }
+
+        .examples {
+            background: var(--example-bg);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .examples h4 {
+            margin: 0 0 8px 0;
+            color: var(--function-name);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .copy-btn {
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75em;
+            margin-left: 8px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .copy-btn:hover {
+            opacity: 1;
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "Fira Code", monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 18px;
+            right: 0;
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .back-button {
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .badge {
+            background: var(--card-border);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>OpenSCAD API Reference</h1>
+    <p>Complete documentation for OpenSCAD functions, modules, and language constructs</p>
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle light/dark theme">🌙</button>
+</header>
+
+<div class="search-container">
+    <input type="text" id="search-input" placeholder="Search functions, modules, or keywords...">
+</div>
+
+<a href="dashboard.html" class="back-button">← Back to Dashboard</a>
+
+<section class="category" data-category="2d-primitives">
+    <h2 class="category-title">2D Primitives</h2>
+    <div class="function-grid">
+        <div class="card" data-function="circle">
+            <span class="function-name">circle(r | d)<span class="badge">2d</span></span>
+            <p class="description">Creates a 2D circle at the origin. The circle is approximated by a polygon with the number of sides determined by the $fn, $fa, and $fs special variables.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">r</span> <span class="param-type">number</span> - Radius of the circle (alternative to d)
+                </div>
+                <div class="param-item">
+                    <span class="param-name">d</span> <span class="param-type">number</span> - Diameter of the circle (alternative to r)
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>circle(r = 10);           // Circle with radius 10
+circle(d = 20);           // Circle with diameter 20
+circle(15);               // Circle with radius 15 (shorthand)</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="square">
+            <span class="function-name">square([width, height], center)<span class="badge">2d</span></span>
+            <p class="description">Creates a 2D rectangle. If only one dimension is given, it creates a square. The center parameter controls whether the rectangle is centered on the origin.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">[width, height]</span> <span class="param-type">vector</span> - Size of the rectangle
+                </div>
+                <div class="param-item">
+                    <span class="param-name">center</span> <span class="param-type">boolean</span> - If true, centers the rectangle on origin (default: false)
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>square([20, 10]);          // Rectangle 20x10
+square(15);                // Square 15x15
+square([30, 20], center=true); // Centered rectangle</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="polygon">
+            <span class="function-name">polygon(points, paths, convexity)<span class="badge">2d</span></span>
+            <p class="description">Creates a 2D polygon from a list of points. Points are specified as [x,y] coordinates. Multiple paths can be used to create polygons with holes.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">points</span> <span class="param-type">vector of vectors</span> - List of [x,y] coordinates
+                </div>
+                <div class="param-item">
+                    <span class="param-name">paths</span> <span class="param-type">vector of vectors</span> - Optional path indices (default: all points in order)
+                </div>
+                <div class="param-item">
+                    <span class="param-name">convexity</span> <span class="param-type">integer</span> - Maximum number of ray intersections (default: 1)
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>polygon(points=[[0,0],[10,0],[10,10],[0,10]]);
+polygon(points=[[0,0],[20,0],[10,20]], paths=[[0,1,2]]);
+polygon(points=[[0,0],[10,0],[10,10],[0,10],[3,3],[7,3],[7,7],[3,7]],
+        paths=[[0,1,2,3],[4,5,6,7]]); // Polygon with hole</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="category" data-category="3d-primitives">
+    <h2 class="category-title">3D Primitives</h2>
+    <div class="function-grid">
+        <div class="card" data-function="cube">
+            <span class="function-name">cube([width, height, depth], center)<span class="badge">3d</span></span>
+            <p class="description">Creates a 3D rectangular prism (cube). If a single number is given, it creates a perfect cube. The center parameter controls positioning relative to the origin.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">[width, height, depth]</span> <span class="param-type">vector</span> - Dimensions of the cube
+                </div>
+                <div class="param-item">
+                    <span class="param-name">center</span> <span class="param-type">boolean</span> - If true, centers the cube on origin (default: false)
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>cube([20, 10, 5]);         // Rectangular prism
+cube(15);                  // Cube 15x15x15
+cube([10, 10, 10], center=true); // Centered cube</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="sphere">
+            <span class="function-name">sphere(r | d)<span class="badge">3d</span></span>
+            <p class="description">Creates a 3D sphere at the origin. The sphere is approximated by a polyhedron with resolution controlled by the $fn, $fa, and $fs special variables.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">r</span> <span class="param-type">number</span> - Radius of the sphere (alternative to d)
+                </div>
+                <div class="param-item">
+                    <span class="param-name">d</span> <span class="param-type">number</span> - Diameter of the sphere (alternative to r)
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>sphere(r = 10);            // Sphere with radius 10
+sphere(d = 20);            // Sphere with diameter 20
+sphere(15);                // Sphere with radius 15</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="cylinder">
+            <span class="function-name">cylinder(h, r1 | d1, r2 | d2, center)<span class="badge">3d</span></span>
+            <p class="description">Creates a 3D cylinder (or cone/frustum). If r2/d2 is specified and different from r1/d1, it creates a conical shape. The center parameter controls vertical positioning.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">h</span> <span class="param-type">number</span> - Height of the cylinder
+                </div>
+                <div class="param-item">
+                    <span class="param-name">r1 | d1</span> <span class="param-type">number</span> - Bottom radius/diameter
+                </div>
+                <div class="param-item">
+                    <span class="param-name">r2 | d2</span> <span class="param-type">number</span> - Top radius/diameter (optional, defaults to r1/d1)
+                </div>
+                <div class="param-item">
+                    <span class="param-name">center</span> <span class="param-type">boolean</span> - If true, centers vertically on origin (default: false)
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>cylinder(h=20, r=5);       // Cylinder
+cylinder(h=15, r1=8, r2=3); // Cone
+cylinder(h=10, d=12, center=true); // Centered cylinder</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="polyhedron">
+            <span class="function-name">polyhedron(points, faces, convexity)<span class="badge">3d</span></span>
+            <p class="description">Creates a 3D polyhedron from a list of points and triangular faces. This is the most general 3D primitive, allowing creation of any polyhedral shape.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">points</span> <span class="param-type">vector of vectors</span> - List of [x,y,z] coordinates
+                </div>
+                <div class="param-item">
+                    <span class="param-name">faces</span> <span class="param-type">vector of vectors</span> - List of triangular face indices
+                </div>
+                <div class="param-item">
+                    <span class="param-name">convexity</span> <span class="param-type">integer</span> - Maximum number of ray intersections (default: 1)
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>polyhedron(
+  points=[[10,10,0],[10,-10,0],[-10,-10,0],[-10,10,0],[0,0,10]],
+  faces=[[0,1,4],[1,2,4],[2,3,4],[3,0,4],[1,0,3],[2,1,3]]
+);</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="category" data-category="transformations">
+    <h2 class="category-title">Transformations</h2>
+    <div class="function-grid">
+        <div class="card" data-function="translate">
+            <span class="function-name">translate([x, y, z])<span class="badge">transform</span></span>
+            <p class="description">Moves child objects by the specified vector. Translation is applied to all children within the module.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">[x, y, z]</span> <span class="param-type">vector</span> - Translation vector
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>translate([10, 0, 0]) cube(5);     // Move cube 10 units right
+translate([0, 5, 0]) sphere(3);     // Move sphere 5 units forward
+translate([2, 3, 4]) {              // Move multiple objects
+  cube(5);
+  cylinder(h=10, r=2);
+}</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="rotate">
+            <span class="function-name">rotate([x, y, z] | a, [x, y, z])<span class="badge">transform</span></span>
+            <p class="description">Rotates child objects around the origin. Can specify individual axis rotations or a single angle around a custom axis. Angles are in degrees.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">[x, y, z]</span> <span class="param-type">vector</span> - Rotation angles around X, Y, Z axes
+                </div>
+                <div class="param-item">
+                    <span class="param-name">a, [x, y, z]</span> <span class="param-type">number, vector</span> - Single angle and axis vector
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>rotate([0, 0, 45]) square(10);     // Rotate 45° around Z
+rotate([30, 0, 0]) cube(5);         // Rotate 30° around X
+rotate(a=45, v=[1,1,0]) cylinder(h=10, r=2); // Rotate around custom axis</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="scale">
+            <span class="function-name">scale([x, y, z])<span class="badge">transform</span></span>
+            <p class="description">Scales child objects by the specified factors. Values greater than 1 enlarge, less than 1 shrink. Negative values mirror across that axis.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">[x, y, z]</span> <span class="param-type">vector</span> - Scale factors for each axis
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>scale([2, 1, 1]) cube(5);          // Double width
+scale([0.5, 0.5, 0.5]) sphere(10);  // Half size
+scale([1, -1, 1]) cube(5);          // Mirror across Y axis</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="mirror">
+            <span class="function-name">mirror([x, y, z])<span class="badge">transform</span></span>
+            <p class="description">Mirrors child objects across a plane perpendicular to the specified normal vector. The vector doesn't need to be normalized.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">[x, y, z]</span> <span class="param-type">vector</span> - Normal vector of the mirror plane
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>mirror([1, 0, 0]) cube(5);         // Mirror across YZ plane
+mirror([0, 1, 0]) sphere(5);        // Mirror across XZ plane
+mirror([1, 1, 0]) cylinder(h=10, r=2); // Mirror across diagonal plane</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="category" data-category="boolean-operations">
+    <h2 class="category-title">Boolean Operations</h2>
+    <div class="function-grid">
+        <div class="card" data-function="union">
+            <span class="function-name">union()<span class="badge">boolean</span></span>
+            <p class="description">Combines all child objects into a single solid. This is the default operation when multiple objects are rendered together.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">No parameters - operates on all children</div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>union() {
+  cube([10, 10, 10]);
+  translate([5, 5, 5]) sphere(7);
+}
+
+cube(10);
+translate([5, 5, 5]) sphere(7); // Same as above (implicit union)</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="difference">
+            <span class="function-name">difference()<span class="badge">boolean</span></span>
+            <p class="description">Subtracts all subsequent child objects from the first child object. The first child defines the base shape, and all others are cut out of it.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">No parameters - operates on all children</div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>difference() {
+  cube([20, 20, 20]);           // Base shape
+  translate([5, 5, 5]) sphere(8); // Hole
+}
+
+difference() {
+  cylinder(h=10, r=5);
+  translate([0, 0, 5]) cylinder(h=6, r=3);
+}</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="intersection">
+            <span class="function-name">intersection()<span class="badge">boolean</span></span>
+            <p class="description">Creates a shape that contains only the volume where all child objects overlap. The result is the common intersection of all children.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">No parameters - operates on all children</div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>intersection() {
+  cube([20, 20, 20]);
+  translate([10, 10, 10]) sphere(15);
+}
+
+intersection() {
+  cylinder(h=20, r=8);
+  cube([15, 15, 20], center=true);
+}</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="category" data-category="mathematical-functions">
+    <h2 class="category-title">Mathematical Functions</h2>
+    <div class="function-grid">
+        <div class="card" data-function="abs">
+            <span class="function-name">abs(x)<span class="badge">math</span></span>
+            <p class="description">Returns the absolute (positive) value of a number. Negative numbers become positive, positive numbers remain unchanged.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">x</span> <span class="param-type">number</span> - Input value
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>abs(-5);     // Returns 5
+abs(3.14);   // Returns 3.14
+abs(-0);     // Returns 0</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="sin">
+            <span class="function-name">sin(x), cos(x), tan(x)<span class="badge">math</span></span>
+            <p class="description">Trigonometric functions. Note: OpenSCAD uses degrees, not radians, unlike many programming languages.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">x</span> <span class="param-type">number</span> - Angle in degrees
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>sin(30);     // Returns 0.5
+cos(60);     // Returns 0.5
+tan(45);     // Returns 1
+
+// Parametric circle
+for(angle = [0:10:360]) {
+  translate([cos(angle)*10, sin(angle)*10, 0])
+    sphere(1);
+}</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="sqrt">
+            <span class="function-name">sqrt(x)<span class="badge">math</span></span>
+            <p class="description">Returns the square root of a number. Returns undef for negative numbers.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">x</span> <span class="param-type">number</span> - Input value (must be non-negative)
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>sqrt(4);     // Returns 2
+sqrt(2);     // Returns 1.41421...
+sqrt(0);     // Returns 0</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="min">
+            <span class="function-name">min(x, y, ...), max(x, y, ...)<span class="badge">math</span></span>
+            <p class="description">Returns the minimum or maximum value from a list of numbers. Can take multiple arguments.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">x, y, ...</span> <span class="param-type">numbers</span> - Values to compare
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>min(5, 3, 8, 1);    // Returns 1
+max(5, 3, 8, 1);    // Returns 8
+min([2, 7, 1, 9]);  // Returns 1 (works with vectors too)</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="rands">
+            <span class="function-name">rands(min, max, count, seed)<span class="badge">math</span></span>
+            <p class="description">Generates a list of random numbers within a specified range. The seed parameter ensures reproducible results.</p>
+
+            <div class="parameters">
+                <h4>Parameters</h4>
+                <div class="param-item">
+                    <span class="param-name">min</span> <span class="param-type">number</span> - Minimum value (inclusive)
+                </div>
+                <div class="param-item">
+                    <span class="param-name">max</span> <span class="param-type">number</span> - Maximum value (exclusive)
+                </div>
+                <div class="param-item">
+                    <span class="param-name">count</span> <span class="param-type">integer</span> - Number of random values to generate
+                </div>
+                <div class="param-item">
+                    <span class="param-name">seed</span> <span class="param-type">number</span> - Optional seed for reproducible results
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>rands(0, 10, 5);        // 5 random numbers 0-10
+rands(0, 1, 3, 42);     // Reproducible random numbers
+
+// Random spheres
+for(pos = rands(-10, 10, 6)) {
+  translate([pos[0], pos[1], pos[2]])
+    sphere(1);
+}</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="category" data-category="special-variables">
+    <h2 class="category-title">Special Variables & Constants</h2>
+    <div class="function-grid">
+        <div class="card" data-function="resolution-variables">
+            <span class="function-name">$fn, $fa, $fs<span class="badge">special</span></span>
+            <p class="description">Control the resolution/quality of curved surfaces. $fn sets minimum number of fragments, $fa sets minimum angle, $fs sets minimum size. Higher values = smoother curves but slower rendering.</p>
+
+            <div class="parameters">
+                <h4>Variables</h4>
+                <div class="param-item">
+                    <span class="param-name">$fn</span> <span class="param-type">integer</span> - Minimum number of fragments (default: 0, uses $fa/$fs)
+                </div>
+                <div class="param-item">
+                    <span class="param-name">$fa</span> <span class="param-type">number</span> - Minimum angle in degrees (default: 12)
+                </div>
+                <div class="param-item">
+                    <span class="param-name">$fs</span> <span class="param-type">number</span> - Minimum fragment size (default: 2)
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>$fn = 50; sphere(10);     // High quality sphere
+$fa = 5; $fs = 0.5; cylinder(h=20, r=5); // Fine resolution
+$fn = 6; cylinder(h=10, r=5); // Hexagonal prism</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="pi">
+            <span class="function-name">PI<span class="badge">constant</span></span>
+            <p class="description">Mathematical constant π (pi), approximately 3.141592653589793. Used in trigonometric calculations and circle geometry.</p>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>circumference = 2 * PI * radius;
+area = PI * pow(radius, 2);
+
+// Parametric equations
+x = cos(angle) * radius;
+y = sin(angle) * radius;</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+
+        <div class="card" data-function="children-variables">
+            <span class="function-name">$children, $t<span class="badge">special</span></span>
+            <p class="description">Special variables available within modules. $children contains the number of child objects. $t is the animation time parameter (0-1).</p>
+
+            <div class="parameters">
+                <h4>Variables</h4>
+                <div class="param-item">
+                    <span class="param-name">$children</span> <span class="param-type">integer</span> - Number of child objects passed to the module
+                </div>
+                <div class="param-item">
+                    <span class="param-name">$t</span> <span class="param-type">number</span> - Animation time (0.0 to 1.0)
+                </div>
+            </div>
+
+            <div class="examples">
+                <h4>Examples</h4>
+                <pre><code>module repeat() {
+  for(i = [0 : $children-1]) {
+    translate([i*20, 0, 0]) children(i);
+  }
+}
+
+repeat() {
+  sphere(5);
+  cube(5);
+}
+
+// Animation
+rotate([0, 0, $t * 360]) cube(10);</code></pre>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeKey = 'blueprint-theme';
+
+    const getPreferredTheme = () => {
+      const stored = localStorage.getItem(themeKey);
+      if (stored === 'light' || stored === 'dark') return stored;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+
+    const applyTheme = theme => {
+      document.documentElement.dataset.theme = theme;
+      if (themeToggle) {
+        themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+        themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      }
+    };
+
+    const toggleTheme = () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(themeKey, next);
+      applyTheme(next);
+    };
+
+    // Search functionality
+    const searchInput = document.getElementById('search-input');
+    const cards = document.querySelectorAll('.card');
+    const categories = document.querySelectorAll('.category');
+
+    const filterContent = (query) => {
+      const searchTerm = query.toLowerCase().trim();
+
+      cards.forEach(card => {
+        const functionName = card.dataset.function || '';
+        const cardText = card.textContent.toLowerCase();
+        const isMatch = !searchTerm ||
+          functionName.includes(searchTerm) ||
+          cardText.includes(searchTerm);
+
+        card.classList.toggle('hidden', !isMatch);
+      });
+
+      // Hide empty categories
+      categories.forEach(category => {
+        const visibleCards = category.querySelectorAll('.card:not(.hidden)');
+        category.style.display = visibleCards.length > 0 ? 'block' : 'none';
+      });
+    };
+
+    // Copy to clipboard functionality
+    function copyToClipboard(element) {
+      const code = element.textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = element.nextElementSibling;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.style.background = '#28a745';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.background = '';
+        }, 1000);
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      applyTheme(getPreferredTheme());
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          filterContent(e.target.value);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
