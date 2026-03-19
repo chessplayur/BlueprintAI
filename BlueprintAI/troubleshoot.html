@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenSCAD Troubleshooting Guide</title>
+    <style>
+        :root {
+            --bg: #f4f7f6;
+            --text: #333;
+            --header-border: #2c3e50;
+            --title: #2c3e50;
+            --category-bg: #2c3e50;
+            --card-bg: #fff;
+            --card-border: #3498db;
+            --function-name: #e67e22;
+            --code-bg: #eee;
+            --link: #2563eb;
+            --link-hover: rgba(37, 99, 235, 0.9);
+            --tooltip-bg: rgba(0, 0, 0, 0.85);
+            --tooltip-text: #fff;
+            --button-bg: #2563eb;
+            --button-text: #fff;
+            --error-bg: #fee2e2;
+            --error-border: #dc2626;
+            --warning-bg: #fef3c7;
+            --warning-border: #d97706;
+            --info-bg: #dbeafe;
+            --info-border: #2563eb;
+            --success-bg: #d1fae5;
+            --success-border: #059669;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0b1220;
+            --text: #e8eef7;
+            --header-border: #415168;
+            --title: #e8eef7;
+            --category-bg: #1d2738;
+            --card-bg: #162032;
+            --card-border: #4f7ce1;
+            --function-name: #f3b04b;
+            --code-bg: #1b2431;
+            --link: #7da7ff;
+            --link-hover: #aac7ff;
+            --tooltip-bg: rgba(0, 0, 0, 0.85);
+            --tooltip-text: #f4f7fb;
+            --button-bg: #4f7ce1;
+            --button-text: #fff;
+            --error-bg: #451a1a;
+            --error-border: #dc2626;
+            --warning-bg: #451a03;
+            --warning-border: #d97706;
+            --info-bg: #1e1b4b;
+            --info-border: #4f7ce1;
+            --success-bg: #14532d;
+            --success-border: #059669;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg);
+        }
+
+        header {
+            border-bottom: 3px solid var(--header-border);
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        h1 { color: var(--title); margin: 0; }
+
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid var(--card-border);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        #search-input:focus {
+            outline: none;
+            border-color: var(--function-name);
+        }
+
+        .category {
+            margin-bottom: 40px;
+        }
+
+        .category-title {
+            background: var(--category-bg);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+
+        .issue-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .issue-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--card-border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .issue-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .issue-card.error { border-left-color: var(--error-border); }
+        .issue-card.warning { border-left-color: var(--warning-border); }
+        .issue-card.info { border-left-color: var(--info-border); }
+        .issue-card.success { border-left-color: var(--success-border); }
+
+        .issue-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--function-name);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .issue-description {
+            font-size: 0.95em;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .solution {
+            background: var(--code-bg);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--card-border);
+        }
+
+        .solution h4 {
+            margin: 0 0 8px 0;
+            color: var(--function-name);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .code-example {
+            background: var(--code-bg);
+            padding: 12px;
+            border-radius: 6px;
+            margin: 8px 0;
+            font-size: 0.85em;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .code-example.bad {
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+        }
+
+        .code-example.good {
+            background: var(--success-bg);
+            border: 1px solid var(--success-border);
+        }
+
+        .copy-btn {
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75em;
+            margin-left: 8px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .copy-btn:hover {
+            opacity: 1;
+        }
+
+        .pro-tip {
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+        }
+
+        .pro-tip h5 {
+            margin: 0 0 6px 0;
+            color: var(--warning-border);
+            font-size: 0.85em;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "Fira Code", monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 18px;
+            right: 0;
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .back-button {
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .severity-badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .severity-error { background: var(--error-border); color: white; }
+        .severity-warning { background: var(--warning-border); color: white; }
+        .severity-info { background: var(--info-border); color: white; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>OpenSCAD Troubleshooting Guide</h1>
+    <p>Common issues and their solutions for OpenSCAD development</p>
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle light/dark theme">🌙</button>
+</header>
+
+<div class="search-container">
+    <input type="text" id="search-input" placeholder="Search issues, symptoms, or solutions...">
+</div>
+
+<a href="dashboard.html" class="back-button">← Back to Dashboard</a>
+
+<section class="category" data-category="syntax-errors">
+    <h2 class="category-title">Syntax Errors</h2>
+    <div class="issue-grid">
+        <div class="issue-card error" data-issue="missing-semicolon">
+            <div class="issue-title">
+                <span class="severity-badge severity-error">Error</span>
+                Missing Semicolon
+            </div>
+            <p class="issue-description">OpenSCAD requires semicolons after every statement. Missing semicolons cause compilation errors.</p>
+
+            <div class="solution">
+                <h4>Problem</h4>
+                <div class="code-example bad"><code>cube([10, 10, 10])  // Missing semicolon!
+sphere(r = 5)</code></div>
+
+                <h4>Solution</h4>
+                <div class="code-example good"><code>cube([10, 10, 10]);  // Add semicolon
+sphere(r = 5);</code></div>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy Fix</button>
+            </div>
+
+            <div class="pro-tip">
+                <h5>Pro Tip</h5>
+                <p>Always add semicolons after every OpenSCAD statement. The error message usually points to the next line, not the missing semicolon.</p>
+            </div>
+        </div>
+
+        <div class="issue-card error" data-issue="undefined-variable">
+            <div class="issue-title">
+                <span class="severity-badge severity-error">Error</span>
+                Undefined Variable
+            </div>
+            <p class="issue-description">Using a variable that hasn't been defined causes compilation errors.</p>
+
+            <div class="solution">
+                <h4>Problem</h4>
+                <div class="code-example bad"><code>cube([size, size, size]);  // 'size' not defined</code></div>
+
+                <h4>Solution</h4>
+                <div class="code-example good"><code>size = 10;
+cube([size, size, size]);</code></div>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy Fix</button>
+            </div>
+        </div>
+
+        <div class="issue-card error" data-issue="bracket-mismatch">
+            <div class="issue-title">
+                <span class="severity-badge severity-error">Error</span>
+                Bracket/Parenthesis Mismatch
+            </div>
+            <p class="issue-description">Unmatched brackets, parentheses, or braces cause parsing errors.</p>
+
+            <div class="solution">
+                <h4>Problem</h4>
+                <div class="code-example bad"><code>translate([10, 0, 0]  // Missing closing bracket
+    cube(5);</code></div>
+
+                <h4>Solution</h4>
+                <div class="code-example good"><code>translate([10, 0, 0])  // Add closing bracket
+    cube(5);</code></div>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy Fix</button>
+            </div>
+        </div>
+
+        <div class="issue-card error" data-issue="parameter-syntax">
+            <div class="issue-title">
+                <span class="severity-badge severity-error">Error</span>
+                Incorrect Parameter Syntax
+            </div>
+            <p class="issue-description">Wrong parameter format or missing required parameters.</p>
+
+            <div class="solution">
+                <h4>Problem</h4>
+                <div class="code-example bad"><code>cylinder(h=10, r=5, r=3);  // Can't have two 'r' parameters</code></div>
+
+                <h4>Solution</h4>
+                <div class="code-example good"><code>cylinder(h=10, r1=5, r2=3);  // Use r1 and r2 for cone</code></div>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy Fix</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="category" data-category="rendering-issues">
+    <h2 class="category-title">Rendering Issues</h2>
+    <div class="issue-grid">
+        <div class="issue-card warning" data-issue="low-resolution">
+            <div class="issue-title">
+                <span class="severity-badge severity-warning">Warning</span>
+                Low Resolution Circles/Spheres
+            </div>
+            <p class="issue-description">Curved shapes appear blocky or faceted due to low resolution settings.</p>
+
+            <div class="solution">
+                <h4>Solution</h4>
+                <div class="code-example good"><code>$fn = 100;  // High resolution
+sphere(r = 10);
+
+$fa = 5; $fs = 0.5;  // Alternative method
+cylinder(h=20, r=5);</code></div>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy Fix</button>
+            </div>
+
+            <div class="pro-tip">
+                <h5>Pro Tip</h5>
+                <p>$fn sets minimum fragments, $fa minimum angle, $fs minimum size. Higher values = smoother but slower rendering.</p>
+            </div>
+        </div>
+
+        <div class="issue-card warning" data-issue="preview-render-difference">
+            <div class="issue-title">
+                <span class="severity-badge severity-warning">Warning</span>
+                Preview Looks Different from Render
+            </div>
+            <p class="issue-description">Model appears different in preview mode vs full render due to OpenGL vs CGAL differences.</p>
+
+            <div class="solution">
+                <h4>Solution</h4>
+                <p>Always do a full render (F6) before finalizing. Preview (F5) uses OpenGL approximations.</p>
+                <div class="code-example good"><code>// This may look different in preview vs render:
+difference() {
+  cube(20, center=true);
+  sphere(10);
+}</code></div>
+            </div>
+        </div>
+
+        <div class="issue-card error" data-issue="empty-model">
+            <div class="issue-title">
+                <span class="severity-badge severity-error">Error</span>
+                Model Renders as Empty/Invisible
+            </div>
+            <p class="issue-description">No geometry appears, often due to logical errors or zero-sized objects.</p>
+
+            <div class="solution">
+                <h4>Common Causes</h4>
+                <div class="code-example bad"><code>cube([0, 0, 0]);     // Zero size
+sphere(r = 0);         // Zero radius
+cylinder(h=0, r=5);    // Zero height</code></div>
+
+                <h4>Check for Logic Errors</h4>
+                <div class="code-example bad"><code>difference() {
+  cube(10);
+  cube(10);  // Subtracting identical shape leaves nothing
+}</code></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="category" data-category="boolean-operations">
+    <h2 class="category-title">Boolean Operation Problems</h2>
+    <div class="issue-grid">
+        <div class="issue-card error" data-issue="non-manifold">
+            <div class="issue-title">
+                <span class="severity-badge severity-error">Error</span>
+                Non-Manifold Geometry
+            </div>
+            <p class="issue-description">Geometry with holes, gaps, or self-intersections that can't be 3D printed.</p>
+
+            <div class="solution">
+                <h4>Problem</h4>
+                <div class="code-example bad"><code>// Touching but not overlapping
+union() {
+  cube([10, 10, 10]);
+  translate([10, 0, 0]) cube([10, 10, 10]);
+}</code></div>
+
+                <h4>Solution</h4>
+                <div class="code-example good"><code>// Ensure overlap
+union() {
+  cube([10, 10, 10]);
+  translate([5, 0, 0]) cube([10, 10, 10]);
+}</code></div>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy Fix</button>
+            </div>
+        </div>
+
+        <div class="issue-card warning" data-issue="z-fighting">
+            <div class="issue-title">
+                <span class="severity-badge severity-warning">Warning</span>
+                Z-Fighting/Visual Artifacts
+            </div>
+            <p class="issue-description">Surfaces fighting for the same space, causing flickering or missing faces.</p>
+
+            <div class="solution">
+                <h4>Solution</h4>
+                <div class="code-example good"><code>// Add small overlap
+difference() {
+  cube([20, 20, 20]);
+  translate([0, 0, -0.01]) cube([18, 18, 21]);  // Slight overlap
+}</code></div>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy Fix</button>
+            </div>
+        </div>
+
+        <div class="issue-card error" data-issue="complex-boolean-failure">
+            <div class="issue-title">
+                <span class="severity-badge severity-error">Error</span>
+                Complex Boolean Operations Fail
+            </div>
+            <p class="issue-description">Very complex boolean operations may fail or produce incorrect results.</p>
+
+            <div class="solution">
+                <h4>Solutions</h4>
+                <ul>
+                    <li>Break complex operations into simpler steps</li>
+                    <li>Use union() to combine, then difference() to subtract</li>
+                    <li>Increase convexity parameter for complex shapes</li>
+                </ul>
+
+                <div class="code-example good"><code>// Instead of one complex operation:
+difference() {
+  union() { sphere(10); cube(15); }
+  intersection() { cylinder(h=30, r=5); sphere(8); }
+}
+
+// Break it down:
+module base() { union() { sphere(10); cube(15); } }
+module cutout() { intersection() { cylinder(h=30, r=5); sphere(8); } }
+
+difference() {
+  base();
+  cutout();
+}</code></div>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy Fix</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="category" data-category="performance-issues">
+    <h2 class="category-title">Performance Issues</h2>
+    <div class="issue-grid">
+        <div class="issue-card warning" data-issue="slow-rendering">
+            <div class="issue-title">
+                <span class="severity-badge severity-warning">Warning</span>
+                Slow Rendering/Preview
+            </div>
+            <p class="issue-description">Model takes too long to render or preview updates are sluggish.</p>
+
+            <div class="solution">
+                <h4>Optimizations</h4>
+                <div class="code-example good"><code>$fn = 50;  // Reduce resolution during development
+$fa = 12; $fs = 2;  // Default values for faster preview
+
+// Use simple placeholders during design
+// color([1,0,0]) cube([100, 100, 100]);  // Placeholder
+// Final version with full detail</code></div>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy Fix</button>
+            </div>
+        </div>
+
+        <div class="issue-card error" data-issue="out-of-memory">
+            <div class="issue-title">
+                <span class="severity-badge severity-error">Error</span>
+                Out of Memory
+            </div>
+            <p class="issue-description">OpenSCAD runs out of memory with very complex models.</p>
+
+            <div class="solution">
+                <h4>Solutions</h4>
+                <ul>
+                    <li>Reduce $fn for curved surfaces</li>
+                    <li>Use difference() instead of complex intersections</li>
+                    <li>Break model into separate STL files</li>
+                    <li>Close OpenSCAD and restart</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="category" data-category="3d-printing-issues">
+    <h2 class="category-title">3D Printing Issues</h2>
+    <div class="issue-grid">
+        <div class="issue-card error" data-issue="non-manifold-print">
+            <div class="issue-title">
+                <span class="severity-badge severity-error">Error</span>
+                Non-Manifold for 3D Printing
+            </div>
+            <p class="issue-description">Model has holes, gaps, or inverted normals that slicers can't handle.</p>
+
+            <div class="solution">
+                <h4>Check with Tools</h4>
+                <p>Use online mesh analysis tools or OpenSCAD's "Thrown together" warning.</p>
+
+                <div class="code-example good"><code>// Ensure proper manifold geometry
+difference() {
+  cube([20, 20, 20], center=true);
+  cylinder(h=25, r=5, center=true);
+}</code></div>
+            </div>
+        </div>
+
+        <div class="issue-card warning" data-issue="thin-walls">
+            <div class="issue-title">
+                <span class="severity-badge severity-warning">Warning</span>
+                Thin Walls or Features
+            </div>
+            <p class="issue-description">Walls thinner than nozzle size may not print reliably.</p>
+
+            <div class="solution">
+                <h4>Solution</h4>
+                <div class="code-example good"><code>wall_thickness = 1.2;  // Minimum 1.2mm for 0.4mm nozzle
+
+difference() {
+  cube([20, 20, 20]);
+  translate([wall_thickness, wall_thickness, wall_thickness])
+    cube([20-wall_thickness*2, 20-wall_thickness*2, 21]);
+}</code></div>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy Fix</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="category" data-category="export-issues">
+    <h2 class="category-title">Export Issues</h2>
+    <div class="issue-grid">
+        <div class="issue-card error" data-issue="export-failure">
+            <div class="issue-title">
+                <span class="severity-badge severity-error">Error</span>
+                STL Export Fails
+            </div>
+            <p class="issue-description">Export to STL fails, often due to geometry issues.</p>
+
+            <div class="solution">
+                <h4>Common Fixes</h4>
+                <ul>
+                    <li>Do a full render (F6) before export</li>
+                    <li>Check for non-manifold geometry</li>
+                    <li>Simplify complex boolean operations</li>
+                    <li>Export as ASCII STL if binary fails</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="issue-card warning" data-issue="large-file-size">
+            <div class="issue-title">
+                <span class="severity-badge severity-warning">Warning</span>
+                Extremely Large STL Files
+            </div>
+            <p class="issue-description">STL file is too large for slicers or 3D printers to handle.</p>
+
+            <div class="solution">
+                <h4>Solution</h4>
+                <div class="code-example good"><code>$fn = 50;  // Reduce resolution
+$fa = 12; $fs = 2;  // Increase minimum feature size
+
+// For large models, use lower detail
+sphere(r = 50);  // Will be less detailed but smaller file</code></div>
+                <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">Copy Fix</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeKey = 'blueprint-theme';
+
+    const getPreferredTheme = () => {
+      const stored = localStorage.getItem(themeKey);
+      if (stored === 'light' || stored === 'dark') return stored;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+
+    const applyTheme = theme => {
+      document.documentElement.dataset.theme = theme;
+      if (themeToggle) {
+        themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+        themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      }
+    };
+
+    const toggleTheme = () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem(themeKey, next);
+      applyTheme(next);
+    };
+
+    // Search functionality
+    const searchInput = document.getElementById('search-input');
+    const issueCards = document.querySelectorAll('.issue-card');
+    const categories = document.querySelectorAll('.category');
+
+    const filterContent = (query) => {
+      const searchTerm = query.toLowerCase().trim();
+
+      issueCards.forEach(card => {
+        const cardText = card.textContent.toLowerCase();
+        const isMatch = !searchTerm || cardText.includes(searchTerm);
+        card.classList.toggle('hidden', !isMatch);
+      });
+
+      // Hide empty categories
+      categories.forEach(category => {
+        const visibleCards = category.querySelectorAll('.issue-card:not(.hidden)');
+        category.style.display = visibleCards.length > 0 ? 'block' : 'none';
+      });
+    };
+
+    // Copy to clipboard functionality
+    function copyToClipboard(element) {
+      const code = element.textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = element.nextElementSibling;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.style.background = '#28a745';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.background = '';
+        }, 1000);
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      applyTheme(getPreferredTheme());
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          filterContent(e.target.value);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
