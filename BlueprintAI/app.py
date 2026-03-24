@@ -27,6 +27,10 @@ CRITICAL RULES:
 - Use translate([x,y,z]) for positioning
 - Common shapes: cube([x,y,z]), cylinder(h,r), sphere(r)
 - For complex shapes, use difference() and union()
+- For complex flat logos or profiles, use linear_extrude(height = 10) combined with 2D primitives like circle() and square()
+- Use module blocks for repeating parts. Use for loops (e.g., for(i=[0:90:270]) rotate([0,0,i])) to arrange repeating components symmetrically around a center point. 
+- Use difference() aggressively to create features like eye sockets, bolt holes, or the 'mouth' of a wrench. Ensure the 'subtracted' shape is slightly taller than the main shape to avoid 'ghost' faces. 
+
 
 EXAMPLE INPUT/OUTPUT:
 Input: "make a sphere"
@@ -42,6 +46,18 @@ Output: $fn = 60;
 cylinder(h=5, r=10, center=true);
 translate([0,0,15]) cylinder(h=30, r=5, center=true);
 
+EXAMPLE OF COMPLEX LOGO LOGIC (Skull & Wrenches):
+module wrench() {
+    difference() {
+        union() {
+            cylinder(h=10, r=15, center=true);
+            translate([30,0,0]) cube([60, 10, 10], center=true);
+        }
+        translate([0,0,0]) rotate([0,0,30]) cube([20, 15, 12], center=true);
+    }
+}
+for(i=[45:90:315]) rotate([0,0,i]) translate([40,0,0]) wrench();
+// Followed by skull module...
 DO NOT EXPLAIN. DO NOT DESCRIBE. ONLY CODE."""
 
     messages = [{"role": "system", "content": system_prompt}]
