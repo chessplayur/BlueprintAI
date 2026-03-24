@@ -163,7 +163,8 @@
                     <div class="panel-header">AI Engineering Assistant</div>
                     <div id="chat-history">Ready for instructions...</div>
                     <div style="padding: 16px; border-top: 1px solid #1e293b;">
-                        <input type="text" id="ai-prompt" placeholder="Try: 'Make a sphere'..." style="width:100%; background:#1e293b; border:none; color:white; padding:12px; border-radius:8px;">
+                        <input type="text" id="ai-prompt" placeholder="Try: 'Make a sphere'..." style="width:100%; background:#1e293b; border:none; color:white; padding:12px; border-radius:8px;"
+                               onkeydown="if(event.key === 'Enter') sendAIPrompt();">
                     </div>
                 </div>
                 <div class="panel">
@@ -443,6 +444,33 @@ cube([20, 20, 20], center=true);</textarea>
             requestAnimationFrame(animate); 
             if(controls) controls.update(); 
             if(renderer) renderer.render(scene, camera); 
+        }
+
+        // ---------------- AI Chat ----------------
+        async function sendAIPrompt() {
+            const promptInput = document.getElementById('ai-prompt');
+            const chatHistory = document.getElementById('chat-history');
+            const userMessage = promptInput.value.trim(); if (!userMessage) return;
+            const userDiv = document.createElement('div'); userDiv.textContent = "👤 " + userMessage; userDiv.style.color="#ffffff"; chatHistory.appendChild(userDiv); chatHistory.scrollTop = chatHistory.scrollHeight;
+            promptInput.value="";
+
+            // Check if there's a reference image
+            const imgPreview = document.getElementById('img-reference-preview');
+            const imageData = imgPreview.style.display !== 'none' ? imgPreview.src : null;
+
+            try{
+                const res = await fetch("http://127.0.0.1:5000/chat", {
+                    method:"POST", 
+                    headers:{"Content-Type":"application/json"}, 
+                    body:JSON.stringify({ 
+                        message: userMessage,
+                        image: imageData 
+                    })
+                });
+                const data = await res.json();
+                const aiDiv = document.createElement('div'); aiDiv.textContent = "🤖 " + data.response; aiDiv.style.color="#4ade80"; chatHistory.appendChild(aiDiv); chatHistory.scrollTop = chatHistory.scrollHeight;
+                document.getElementById('code-editor').value = data.response; render3D();
+            }catch(err){ console.error(err); const errDiv=document.createElement('div'); errDiv.textContent="⚠️ Error contacting AI server."; errDiv.style.color="#ef4444"; chatHistory.appendChild(errDiv); }
         }
     </script>
 </body>
